@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бие даалт 1 · Электроник S.ECM201</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;color:#333;line-height:1.7;-webkit-text-size-adjust:100%}
+a{color:#667eea}
+code,.mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.hidden{display:none !important}
+
+/* ---------- login ---------- */
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.login-box{background:#fff;border-radius:12px;padding:30px;width:100%;max-width:440px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.login-box h2{color:#333;font-size:20px;margin:0 0 4px}
+.login-box .sub{color:#666;font-size:13px;margin-bottom:18px;line-height:1.5}
+.login-box input{width:100%;padding:11px;margin:6px 0;font-size:15px;border:1px solid #ddd;border-radius:4px;font-family:inherit;color:#333;background:#fff}
+.login-box input:focus{outline:2px solid #667eea;outline-offset:-1px}
+.login-box button.go{width:100%;padding:12px;margin-top:10px;background:#667eea;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-family:inherit}
+.login-box button.go:hover{background:#764ba2}
+.login-tabs{display:flex;gap:6px;margin-bottom:16px}
+.login-tabs button{flex:1;padding:10px;border:none;border-radius:6px;background:#eee;color:#555;cursor:pointer;font-size:14px;font-family:inherit}
+.login-tabs button.active{background:#667eea;color:#fff}
+.login-err{color:#c0392b;font-size:13px;margin-top:8px;min-height:18px}
+.hint{font-size:12px;color:#888;margin-top:10px;line-height:1.6}
+
+/* ---------- shell ---------- */
+.container{max-width:1000px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:24px 28px;text-align:center;border-radius:12px 12px 0 0}
+.header .crs{font-size:13px;opacity:.85;margin-bottom:6px}
+.header h1{font-size:26px;margin:0 0 6px;line-height:1.3}
+.header .sub{font-size:14px;opacity:.9}
+#userBar{margin-top:14px;background:rgba(255,255,255,.15);border-radius:6px;padding:8px 12px;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;text-align:left}
+#userBar button{background:#fff;color:#667eea;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px;font-family:inherit;margin-left:6px}
+#userBar button:hover{opacity:.85}
+.nav{display:flex;border-bottom:2px solid #e0e0e0;background:#f5f5f5;overflow-x:auto;position:sticky;top:0;z-index:50}
+.nav button{flex:1 0 auto;padding:14px 16px;border:none;background:transparent;cursor:pointer;font-size:14px;color:#666;border-bottom:3px solid transparent;font-weight:500;white-space:nowrap;font-family:inherit}
+.nav button:hover{background:#efefef}
+.nav button.active{color:#667eea;border-bottom-color:#667eea;background:#fff}
+.nav button.bd{color:#d35400}
+.nav button.bd.active{color:#d35400;border-bottom-color:#d35400}
+.content{padding:24px 30px 30px}
+.footer{background:#f5f5f5;padding:15px 30px;text-align:center;color:#999;font-size:13px;border-top:1px solid #e0e0e0;border-radius:0 0 12px 12px}
+
+/* ---------- blocks ---------- */
+.hero{margin-bottom:4px}
+.vcard{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,#fff3e0,#ffe0b2);border:2px solid #d35400;border-radius:10px;padding:16px 20px;margin-bottom:16px}
+.vcard .big{font-size:22px;font-weight:800;color:#d35400;line-height:1.2;min-width:150px;text-align:center}
+.vcard .big small{display:block;font-size:12px;font-weight:600;color:#a04000;margin-top:4px}
+.vcard .txt{flex:1;min-width:220px;font-size:14px;color:#5d4037;line-height:1.6}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;background:#f0f4ff;border:1px solid #d9e2ff;color:#4a5680}
+.chip.strong{background:#667eea;border-color:#667eea;color:#fff;font-weight:600}
+
+section.card{background:transparent;border:none;padding:0;margin:0 0 10px}
+section.card>h2{font-size:21px;color:#333;margin:0 0 14px;border-left:4px solid #667eea;padding-left:12px;display:flex;align-items:center;gap:10px}
+section.card>h2 .num{flex:0 0 26px;height:26px;border-radius:6px;background:#667eea;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+h3{font-size:16px;margin:18px 0 8px;color:#333}
+p{margin:0 0 10px}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:5px}
+.note{background:#fff3cd;border-left:4px solid #ffc107;border-radius:6px;padding:12px 16px;margin:12px 0;font-size:14px;line-height:1.7}
+.note.w{background:#fdecea;border-left-color:#c0392b;color:#7b241c}
+.fine{font-size:12px;color:#888;line-height:1.6}
+
+.tw{overflow:auto;border:1px solid #ddd;border-radius:6px;margin:10px 0;max-height:620px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid #ddd;padding:6px 9px;text-align:left;vertical-align:top}
+th{background:#667eea;color:#fff;position:sticky;top:0;font-weight:600}
+tbody tr:nth-child(even){background:#f7f7ff}
+td.n,th.n{text-align:right;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;white-space:nowrap}
+
+.f{background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:11px 14px;margin:10px 0;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13.5px;overflow-x:auto;line-height:2}
+.f .lbl{display:block;font-family:'Segoe UI',Tahoma,sans-serif;font-size:12px;color:#888;margin-bottom:4px;font-weight:600;line-height:1.5}
+.blank{display:inline-block;min-width:76px;border-bottom:2px dotted #667eea;color:#667eea;text-align:center;font-weight:700}
+.given{color:#1e8449;font-weight:700}
+
+svg.sch{width:100%;height:auto;max-width:860px;display:block;margin:6px auto}
+.schbox{background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:10px;margin:10px 0;overflow-x:auto}
+svg.sch text{font-family:'Segoe UI',Tahoma,sans-serif;fill:#333}
+svg.sch .w{stroke:#333;stroke-width:2;fill:none;stroke-linecap:round}
+svg.sch .thin{stroke:#888;stroke-width:1.4;fill:none;stroke-dasharray:4 4}
+svg.sch .fl{fill:#333}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:10px 0}
+.kv{background:#f0f4ff;border-radius:6px;padding:10px 14px}
+.kv .k{font-size:12px;color:#667eea;font-weight:600}
+.kv .v{font-size:15px;font-weight:700;margin-top:2px;color:#333}
+
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.stat .s{background:#f0f4ff;border-radius:6px;padding:12px 16px;font-size:14px}
+.stat .s .big{color:#667eea;font-size:24px;font-weight:800;display:block;line-height:1.2}
+.stat .s .lb{font-size:13px;color:#555}
+.tag{font-size:12px;padding:3px 8px;border-radius:4px;color:#fff;font-weight:600;white-space:nowrap;display:inline-block}
+.tag.DCM{background:#2980b9}.tag.BUZ{background:#d35400}.tag.REL{background:#1e8449}.tag.RGB{background:#8e44ad}
+.badge{display:none}
+.btn{padding:8px 14px;background:#667eea;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-family:inherit}
+.btn.g{background:#27ae60}.btn.o,.btn.sec{background:#d35400}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn:hover{opacity:.9}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tools input[type=text],.tools select{padding:8px 10px;border:1px solid #ddd;border-radius:4px;font-family:inherit;font-size:14px;background:#fff;color:#333}
+.tools input[type=text]{max-width:250px;flex:1}
+
+@media (max-width:640px){
+  body{padding:8px}
+  .content{padding:16px}
+  .header{padding:18px 16px}
+  .header h1{font-size:20px}
+  section.card>h2{font-size:18px}
+}
+
+@media print{
+  body{background:#fff;padding:0}
+  #login,.nav,#userBar,.footer,.noprint{display:none !important}
+  .container{box-shadow:none;max-width:none;border-radius:0}
+  .header{background:#fff;color:#000;padding:6px 0;text-align:left;border-bottom:2px solid #667eea}
+  .header h1{font-size:18px}
+  #studentView section.card.hidden,#teacherView section.card.hidden{display:block !important}
+  section.card{break-inside:auto;margin-bottom:18px}
+  .tw{max-height:none;overflow:visible}
+  th{position:static;background:#667eea !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .vcard,.note,.f,.schbox{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:#000;text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <div class="login-box">
+    <h2>Бие даалт 1 — Транзисторын түлхүүр</h2>
+    <div class="sub">S.ECM201 · Электроник · 4-3-р пар · 2-421 · Лекц<br>Багш: Т.Батгэрэл · Авах оноо: 10</div>
+
+    <div class="login-tabs">
+      <button class="active" data-role="s">Оюутан</button>
+      <button data-role="t">Багш</button>
+    </div>
+
+    <input type="text" id="uid" autocomplete="username" placeholder="Оюутны код (B үсэггүй, ж: 252100006)" spellcheck="false">
+    <input type="password" id="upw" autocomplete="current-password" placeholder="PIN — кодын сүүлийн 4 орон" inputmode="numeric">
+    <button class="go" id="lbtn">Нэвтрэх</button>
+    <div class="login-err" id="lerr"></div>
+    <div class="hint" id="lhint">Кодоо B үсгийг хасаж зөвхөн тоогоор оруулж болно.<br>PIN нь кодын сүүлийн 4 орон. Жишээ: <b>252100006</b> → PIN <b>0006</b></div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <div class="container">
+    <div class="header">
+      <div class="crs">S.ECM201 · Электроник · 4-3-р пар · 2-421 танхим · Лекц</div>
+      <h1>Бие даалт 1 — Транзисторыг түлхүүрийн горимоор удирдах</h1>
+      <div class="sub">Багш: Т.Батгэрэл · Авах оноо: 10</div>
+      <div id="userBar">
+        <span id="ubLeft">—</span>
+        <span>
+          <span id="clock" class="mono">00:00:00</span>
+          <button id="printBtn">⎙ Хэвлэх</button>
+          <button id="outBtn">Гарах</button>
+        </span>
+      </div>
+    </div>
+    <div class="nav" id="nav"></div>
+    <div class="content">
+      <div id="studentView"></div>
+      <div id="teacherView"></div>
+    </div>
+    <div class="footer">S.ECM201 · Электроник · Бие даалт 1</div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const COURSE = {code:"S.ECM201", name:"Электроник", pair:"4-3-р пар", room:"2-421", type:"Лекц", teacher:"Т.Батгэрэл"};
+const TEACHER = {ids:["ID5","BATGERELT@MUST.EDU.MN"], pin:"0211", name:"Т.Батгэрэл", title:"Багш"};
+const STUDENTS = [{"code": "B222760023", "name": "Л.ГОМБО", "school": "ГУУС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 20, "tr": "2N2222", "ctype": "Нийтлэг катод (common cathode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 485.0, "std": 470.0, "I": 20.6, "P": 200.2}, "G": {"calc": 425.0, "std": 390.0, "I": 21.8, "P": 185.3}, "B": {"calc": 425.0, "std": 390.0, "I": 21.8, "P": 185.3}}, "Ic": 20.0, "Ib": 266.7, "Ibd": 800.0, "Rb": 5375.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 23.7, "Itot": 60, "Pd": 6.0, "Ptot": 720}}, {"code": "B222760024", "name": "Н.ХОСБАЯР", "school": "ГУУС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "rcoil": 120, "il": 41.7, "tr": "2N2222", "lcoil": 200, "contact": "250 VAC / 7 A"}, "a": {"Ic": 41.7, "Ib": 556.0, "Ibd": 1112.0, "Rb": 3867.0, "Rbs": 3600.0, "Ib_act": 1194.4, "beta_act": 34.9, "gain": 34.9, "Pd": 12.5, "Prb": 5.14, "margin": 19.18, "Pdpct": 2.0, "E": 173.89, "Pcoil": 208.5, "tau": 1.667}}, {"code": "B232760004", "name": "Б.ДӨЛГӨӨН", "school": "ГУУС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "rcoil": 320, "il": 37.5, "tr": "2N2222", "lcoil": 80, "contact": "30 VDC / 10 A"}, "a": {"Ic": 37.5, "Ib": 500.0, "Ibd": 1000.0, "Rb": 4300.0, "Rbs": 4300.0, "Ib_act": 1000.0, "beta_act": 37.5, "gain": 37.5, "Pd": 11.2, "Prb": 4.3, "margin": 21.33, "Pdpct": 1.8, "E": 56.25, "Pcoil": 450.0, "tau": 0.25}}, {"code": "B232760008", "name": "С.БЭЛГҮДЭЙ", "school": "ГУУС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 30, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 30.0, "Ib": 400.0, "Ibd": 800.0, "Rb": 5375.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 35.6, "gain": 35.6, "Pd": 9.0, "Prb": 3.63, "margin": 26.67, "Pdpct": 1.4, "Ubz": 4.7}}, {"code": "B242180011", "name": "П.ДОРЖЗОДОВ", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 35, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 35.0, "Ib": 466.7, "Ibd": 933.3, "Rb": 4607.0, "Rbs": 4300.0, "Ib_act": 1000.0, "beta_act": 35.0, "gain": 35.0, "Pd": 10.5, "Prb": 4.3, "margin": 22.86, "Pdpct": 1.7, "Ubz": 4.7}}, {"code": "B242180073", "name": "Б.БАТЗОРИГ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "rcoil": 400, "il": 30.0, "tr": "2N2222", "lcoil": 80, "contact": "250 VAC / 7 A"}, "a": {"Ic": 30.0, "Ib": 400.0, "Ibd": 1200.0, "Rb": 3583.0, "Rbs": 3300.0, "Ib_act": 1303.0, "beta_act": 23.0, "gain": 23.0, "Pd": 9.0, "Prb": 5.6, "margin": 26.67, "Pdpct": 1.4, "E": 36.0, "Pcoil": 360.0, "tau": 0.2}}, {"code": "B242190004", "name": "М.ЗАНДАНШАТАР", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "il": 30, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 30.0, "Ib": 272.7, "Ibd": 818.2, "Rb": 5256.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 35.6, "gain": 35.6, "Pd": 7.5, "Prb": 3.63, "margin": 3.33, "Pdpct": 1.5, "Ubz": 4.75}}, {"code": "B242190041", "name": "П.ТӨГССАРУУЛ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 6, "il": 600, "stallk": 4, "tr": "TIP120"}, "a": {"Ic": 600.0, "Ib": 600.0, "Ibd": 1800.0, "Rb": 2000.0, "Rbs": 2000, "Ib_act": 1800.0, "beta_act": 333.3, "gain": 333.3, "Pd": 1200.0, "Prb": 6.48, "margin": 8.33, "Pdpct": 1.8, "Istall": 2400, "diode": "1N5408 (3 A)"}}, {"code": "B242190055", "name": "Б.ДАГВАДОРЖ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 15, "tr": "BC547", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 650.0, "std": 620.0, "I": 15.7, "P": 153.3}, "G": {"calc": 570.0, "std": 560.0, "I": 15.3, "P": 130.5}, "B": {"calc": 570.0, "std": 560.0, "I": 15.3, "P": 130.5}}, "Ic": 15.0, "Ib": 136.4, "Ibd": 272.7, "Rb": 15767.0, "Rbs": 15000.0, "Ib_act": 286.7, "beta_act": 52.3, "Itot": 45, "Pd": 3.8, "Ptot": 540}}, {"code": "B242190066", "name": "Н.ӨСӨХ-ИРЭЭДҮЙ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 10, "tr": "2N2222", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 970.0, "std": 910.0, "I": 10.7, "P": 103.4}, "G": {"calc": 850.0, "std": 819.9999999999999, "I": 10.4, "P": 88.1}, "B": {"calc": 850.0, "std": 819.9999999999999, "I": 10.4, "P": 88.1}}, "Ic": 10.0, "Ib": 133.3, "Ibd": 400.0, "Rb": 10750.0, "Rbs": 10000, "Ib_act": 430.0, "beta_act": 23.3, "Itot": 30, "Pd": 3.0, "Ptot": 360}}, {"code": "B242190071", "name": "Б.УУГАНБАЯР", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 450, "stallk": 5, "tr": "TIP120"}, "a": {"Ic": 450.0, "Ib": 450.0, "Ibd": 900.0, "Rb": 4000.0, "Rbs": 3900.0, "Ib_act": 923.1, "beta_act": 487.5, "gain": 487.5, "Pd": 900.0, "Prb": 3.32, "margin": 11.11, "Pdpct": 1.4, "Istall": 2250, "diode": "1N5408 (3 A)"}}, {"code": "B242760009", "name": "О.ЦОГТСАЙХАН", "school": "ГУУС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 35, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 35.0, "Ib": 318.2, "Ibd": 636.4, "Rb": 6757.0, "Rbs": 6200.0, "Ib_act": 693.5, "beta_act": 50.5, "gain": 50.5, "Pd": 8.8, "Prb": 2.98, "margin": 2.86, "Pdpct": 1.8, "Ubz": 4.75}}, {"code": "B252100006", "name": "Б.МӨНХБААТАР", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "rcoil": 270, "il": 44.4, "tr": "BC547", "lcoil": 120, "contact": "250 VAC / 7 A"}, "a": {"Ic": 44.4, "Ib": 403.6, "Ibd": 807.3, "Rb": 5327.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 52.7, "gain": 52.7, "Pd": 11.1, "Prb": 3.63, "margin": 2.25, "Pdpct": 2.2, "E": 118.28, "Pcoil": 532.8, "tau": 0.444}}, {"code": "B252100016", "name": "Д.БАЯРМАГНАЙ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 320, "stallk": 4, "tr": "2N2222"}, "a": {"Ic": 320.0, "Ib": 4266.7, "Ibd": 8533.3, "Rb": 504.0, "Rbs": 470.0, "Ib_act": 9148.9, "beta_act": 35.0, "gain": 35.0, "Pd": 96.0, "Prb": 39.34, "margin": 2.5, "Pdpct": 15.4, "Istall": 1280, "diode": "1N5408 (3 A)"}}, {"code": "B252100019", "name": "М.АМАРХҮҮ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 15, "tr": "BC547", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 183.0, "std": 180.0, "I": 15.3, "P": 42.0}, "G": {"calc": 103.0, "std": 100, "I": 15.5, "P": 24.0}, "B": {"calc": 103.0, "std": 100, "I": 15.5, "P": 24.0}}, "Ic": 15.0, "Ib": 136.4, "Ibd": 272.7, "Rb": 15767.0, "Rbs": 15000.0, "Ib_act": 286.7, "beta_act": 52.3, "Itot": 45, "Pd": 3.8, "Ptot": 225}}, {"code": "B252100021", "name": "О.ЭНХЗАЯА", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "rcoil": 120, "il": 41.7, "tr": "2N2222", "lcoil": 80, "contact": "250 VAC / 10 A"}, "a": {"Ic": 41.7, "Ib": 556.0, "Ibd": 1112.0, "Rb": 3867.0, "Rbs": 3600.0, "Ib_act": 1194.4, "beta_act": 34.9, "gain": 34.9, "Pd": 12.5, "Prb": 5.14, "margin": 19.18, "Pdpct": 2.0, "E": 69.56, "Pcoil": 208.5, "tau": 0.667}}, {"code": "B252100025", "name": "А.МӨНХБИЛИГ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "il": 20, "tr": "BC547", "ctype": "Нийтлэг катод (common cathode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 138.0, "std": 130.0, "I": 21.2, "P": 58.2}, "G": {"calc": 77.0, "std": 75.0, "I": 20.7, "P": 32.0}, "B": {"calc": 77.0, "std": 75.0, "I": 20.7, "P": 32.0}}, "Ic": 20.0, "Ib": 181.8, "Ibd": 545.5, "Rb": 7883.0, "Rbs": 7500.0, "Ib_act": 573.3, "beta_act": 34.9, "Itot": 60, "Pd": 5.0, "Ptot": 300}}, {"code": "B252100026", "name": "У.МӨНХДОЛГОР", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "rcoil": 320, "il": 37.5, "tr": "BC547", "lcoil": 200, "contact": "250 VAC / 7 A"}, "a": {"Ic": 37.5, "Ib": 340.9, "Ibd": 1022.7, "Rb": 4204.0, "Rbs": 3900.0, "Ib_act": 1102.6, "beta_act": 34.0, "gain": 34.0, "Pd": 9.4, "Prb": 4.74, "margin": 2.67, "Pdpct": 1.9, "E": 140.62, "Pcoil": 450.0, "tau": 0.625}}, {"code": "B252100029", "name": "Э.ТЭМҮҮЛЭН", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 40, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 40.0, "Ib": 533.3, "Ibd": 1066.7, "Rb": 4031.0, "Rbs": 3900.0, "Ib_act": 1102.6, "beta_act": 36.3, "gain": 36.3, "Pd": 12.0, "Prb": 4.74, "margin": 20.0, "Pdpct": 1.9, "Ubz": 4.7}}, {"code": "B252100033", "name": "М.ГАН-ЭРДЭНЭ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 20, "tr": "BC547", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 138.0, "std": 130.0, "I": 21.2, "P": 58.2}, "G": {"calc": 77.0, "std": 75.0, "I": 20.7, "P": 32.0}, "B": {"calc": 77.0, "std": 75.0, "I": 20.7, "P": 32.0}}, "Ic": 20.0, "Ib": 181.8, "Ibd": 363.6, "Rb": 11825.0, "Rbs": 11000.0, "Ib_act": 390.9, "beta_act": 51.2, "Itot": 60, "Pd": 5.0, "Ptot": 300}}, {"code": "B252100034", "name": "Б.АМИРЛАН", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 9, "il": 250, "stallk": 5, "tr": "2N2222"}, "a": {"Ic": 250.0, "Ib": 3333.3, "Ibd": 10000.0, "Rb": 430.0, "Rbs": 430.0, "Ib_act": 10000.0, "beta_act": 25.0, "gain": 25.0, "Pd": 75.0, "Prb": 43.0, "margin": 3.2, "Pdpct": 12.0, "Istall": 1250, "diode": "1N5408 (3 A)"}}, {"code": "B252100035", "name": "Э.АНДХҮҮ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 6, "il": 600, "stallk": 5, "tr": "TIP120"}, "a": {"Ic": 600.0, "Ib": 600.0, "Ibd": 1200.0, "Rb": 3000.0, "Rbs": 3000, "Ib_act": 1200.0, "beta_act": 500.0, "gain": 500.0, "Pd": 1200.0, "Prb": 4.32, "margin": 8.33, "Pdpct": 1.8, "Istall": 3000, "diode": "1N5408 (3 A)"}}, {"code": "B252100045", "name": "Г.ГАНТӨГС", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "il": 35, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 35.0, "Ib": 318.2, "Ibd": 954.5, "Rb": 4505.0, "Rbs": 4300.0, "Ib_act": 1000.0, "beta_act": 35.0, "gain": 35.0, "Pd": 8.8, "Prb": 4.3, "margin": 2.86, "Pdpct": 1.8, "Ubz": 4.75}}, {"code": "B252100047", "name": "Б.НЯМДЭЛГЭР", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "il": 15, "tr": "2N2222", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 180.0, "std": 180.0, "I": 15.0, "P": 40.5}, "G": {"calc": 100.0, "std": 91.0, "I": 16.5, "P": 24.7}, "B": {"calc": 100.0, "std": 91.0, "I": 16.5, "P": 24.7}}, "Ic": 15.0, "Ib": 200.0, "Ibd": 600.0, "Rb": 7167.0, "Rbs": 6800.0, "Ib_act": 632.4, "beta_act": 23.7, "Itot": 45, "Pd": 4.5, "Ptot": 225}}, {"code": "B252100048", "name": "Н.АЗЖАРГАЛ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 20, "tr": "BC547", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 338.0, "std": 330.0, "I": 20.5, "P": 138.1}, "G": {"calc": 278.0, "std": 270.0, "I": 20.6, "P": 114.1}, "B": {"calc": 278.0, "std": 270.0, "I": 20.6, "P": 114.1}}, "Ic": 20.0, "Ib": 181.8, "Ibd": 363.6, "Rb": 11825.0, "Rbs": 11000.0, "Ib_act": 390.9, "beta_act": 51.2, "Itot": 60, "Pd": 5.0, "Ptot": 540}}, {"code": "B252100050", "name": "Д.ШАНЬХҮҮ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 15, "tr": "BC547", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 650.0, "std": 620.0, "I": 15.7, "P": 153.3}, "G": {"calc": 570.0, "std": 560.0, "I": 15.3, "P": 130.5}, "B": {"calc": 570.0, "std": 560.0, "I": 15.3, "P": 130.5}}, "Ic": 15.0, "Ib": 136.4, "Ibd": 272.7, "Rb": 15767.0, "Rbs": 15000.0, "Ib_act": 286.7, "beta_act": 52.3, "Itot": 45, "Pd": 3.8, "Ptot": 540}}, {"code": "B252100052", "name": "Э.АЛТАНЗУЛ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 250, "stallk": 4, "tr": "2N2222"}, "a": {"Ic": 250.0, "Ib": 3333.3, "Ibd": 6666.7, "Rb": 645.0, "Rbs": 620.0, "Ib_act": 6935.5, "beta_act": 36.0, "gain": 36.0, "Pd": 75.0, "Prb": 29.82, "margin": 3.2, "Pdpct": 12.0, "Istall": 1000, "diode": "1N4007 (1 A)"}}, {"code": "B252100062", "name": "З.БАСАНЖАВ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "rcoil": 70, "il": 71.4, "tr": "2N2222", "lcoil": 120, "contact": "250 VAC / 7 A"}, "a": {"Ic": 71.4, "Ib": 952.0, "Ibd": 2856.0, "Rb": 1506.0, "Rbs": 1500.0, "Ib_act": 2866.7, "beta_act": 24.9, "gain": 24.9, "Pd": 21.4, "Prb": 12.33, "margin": 11.2, "Pdpct": 3.4, "E": 305.88, "Pcoil": 357.0, "tau": 1.714}}, {"code": "B252100065", "name": "Г.ӨСӨХБАЯР", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 15, "tr": "BC547", "ctype": "Нийтлэг катод (common cathode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 650.0, "std": 620.0, "I": 15.7, "P": 153.3}, "G": {"calc": 570.0, "std": 560.0, "I": 15.3, "P": 130.5}, "B": {"calc": 570.0, "std": 560.0, "I": 15.3, "P": 130.5}}, "Ic": 15.0, "Ib": 136.4, "Ibd": 409.1, "Rb": 10511.0, "Rbs": 10000, "Ib_act": 430.0, "beta_act": 34.9, "Itot": 45, "Pd": 3.8, "Ptot": 540}}, {"code": "B252100077", "name": "Х.НАЦАГДОРЖ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 800, "stallk": 5, "tr": "TIP120"}, "a": {"Ic": 800.0, "Ib": 800.0, "Ibd": 1600.0, "Rb": 2250.0, "Rbs": 2200.0, "Ib_act": 1636.4, "beta_act": 488.9, "gain": 488.9, "Pd": 1600.0, "Prb": 5.89, "margin": 6.25, "Pdpct": 2.5, "Istall": 4000, "diode": "1N5408 (3 A)"}}, {"code": "B252100088", "name": "Ц.АМГАЛАН", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 25, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 25.0, "Ib": 333.3, "Ibd": 666.7, "Rb": 6450.0, "Rbs": 6200.0, "Ib_act": 693.5, "beta_act": 36.0, "gain": 36.0, "Pd": 7.5, "Prb": 2.98, "margin": 32.0, "Pdpct": 1.2, "Ubz": 11.7}}, {"code": "B252101006", "name": "З.ДӨЛГӨӨН", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 9, "il": 250, "stallk": 5, "tr": "2N2222"}, "a": {"Ic": 250.0, "Ib": 3333.3, "Ibd": 10000.0, "Rb": 430.0, "Rbs": 430.0, "Ib_act": 10000.0, "beta_act": 25.0, "gain": 25.0, "Pd": 75.0, "Prb": 43.0, "margin": 3.2, "Pdpct": 12.0, "Istall": 1250, "diode": "1N5408 (3 A)"}}, {"code": "B252101007", "name": "О.ЭНХХҮСЛЭН", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 800, "stallk": 4, "tr": "TIP120"}, "a": {"Ic": 800.0, "Ib": 800.0, "Ibd": 1600.0, "Rb": 2250.0, "Rbs": 2200.0, "Ib_act": 1636.4, "beta_act": 488.9, "gain": 488.9, "Pd": 1600.0, "Prb": 5.89, "margin": 6.25, "Pdpct": 2.5, "Istall": 3200, "diode": "1N5408 (3 A)"}}, {"code": "B252101010", "name": "Б.СУМЪЯАБАЗАР", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 20, "tr": "2N2222", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 485.0, "std": 470.0, "I": 20.6, "P": 200.2}, "G": {"calc": 425.0, "std": 390.0, "I": 21.8, "P": 185.3}, "B": {"calc": 425.0, "std": 390.0, "I": 21.8, "P": 185.3}}, "Ic": 20.0, "Ib": 266.7, "Ibd": 533.3, "Rb": 8062.0, "Rbs": 7500.0, "Ib_act": 573.3, "beta_act": 34.9, "Itot": 60, "Pd": 6.0, "Ptot": 720}}, {"code": "B252101014", "name": "Ө.ЦАЦРАЛ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "rcoil": 70, "il": 71.4, "tr": "2N2222", "lcoil": 200, "contact": "250 VAC / 7 A"}, "a": {"Ic": 71.4, "Ib": 952.0, "Ibd": 2856.0, "Rb": 1506.0, "Rbs": 1500.0, "Ib_act": 2866.7, "beta_act": 24.9, "gain": 24.9, "Pd": 21.4, "Prb": 12.33, "margin": 11.2, "Pdpct": 3.4, "E": 509.8, "Pcoil": 357.0, "tau": 2.857}}, {"code": "B252101015", "name": "З.ЗАМИЛАН", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 40, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 40.0, "Ib": 363.6, "Ibd": 727.3, "Rb": 5912.0, "Rbs": 5600.0, "Ib_act": 767.9, "beta_act": 52.1, "gain": 52.1, "Pd": 10.0, "Prb": 3.3, "margin": 2.5, "Pdpct": 2.0, "Ubz": 4.75}}, {"code": "B252101016", "name": "Ц.БИЛГҮҮН", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "rcoil": 270, "il": 44.4, "tr": "2N2222", "lcoil": 200, "contact": "30 VDC / 10 A"}, "a": {"Ic": 44.4, "Ib": 592.0, "Ibd": 1184.0, "Rb": 3632.0, "Rbs": 3600.0, "Ib_act": 1194.4, "beta_act": 37.2, "gain": 37.2, "Pd": 13.3, "Prb": 5.14, "margin": 18.02, "Pdpct": 2.1, "E": 197.14, "Pcoil": 532.8, "tau": 0.741}}, {"code": "B252101017", "name": "С.ХҮЛЭГ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "rcoil": 70, "il": 71.4, "tr": "2N2222", "lcoil": 200, "contact": "250 VAC / 7 A"}, "a": {"Ic": 71.4, "Ib": 952.0, "Ibd": 2856.0, "Rb": 1506.0, "Rbs": 1500.0, "Ib_act": 2866.7, "beta_act": 24.9, "gain": 24.9, "Pd": 21.4, "Prb": 12.33, "margin": 11.2, "Pdpct": 3.4, "E": 509.8, "Pcoil": 357.0, "tau": 2.857}}, {"code": "B252101018", "name": "Б.ЕСӨНБИЛЭГ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 320, "stallk": 5, "tr": "2N2222"}, "a": {"Ic": 320.0, "Ib": 4266.7, "Ibd": 8533.3, "Rb": 504.0, "Rbs": 470.0, "Ib_act": 9148.9, "beta_act": 35.0, "gain": 35.0, "Pd": 96.0, "Prb": 39.34, "margin": 2.5, "Pdpct": 15.4, "Istall": 1600, "diode": "1N5408 (3 A)"}}, {"code": "B252101024", "name": "М.БАТМӨНХ", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 30, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 30.0, "Ib": 272.7, "Ibd": 545.5, "Rb": 7883.0, "Rbs": 7500.0, "Ib_act": 573.3, "beta_act": 52.3, "gain": 52.3, "Pd": 7.5, "Prb": 2.47, "margin": 3.33, "Pdpct": 1.5, "Ubz": 4.75}}, {"code": "B252101026", "name": "П.ХАТАНБААТАР", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 30, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 30.0, "Ib": 272.7, "Ibd": 545.5, "Rb": 7883.0, "Rbs": 7500.0, "Ib_act": 573.3, "beta_act": 52.3, "gain": 52.3, "Pd": 7.5, "Prb": 2.47, "margin": 3.33, "Pdpct": 1.5, "Ubz": 11.75}}, {"code": "B252101027", "name": "Ц.НАРАНГЭРЭЛ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "rcoil": 320, "il": 37.5, "tr": "BC547", "lcoil": 200, "contact": "250 VAC / 10 A"}, "a": {"Ic": 37.5, "Ib": 340.9, "Ibd": 681.8, "Rb": 6307.0, "Rbs": 6200.0, "Ib_act": 693.5, "beta_act": 54.1, "gain": 54.1, "Pd": 9.4, "Prb": 2.98, "margin": 2.67, "Pdpct": 1.9, "E": 140.62, "Pcoil": 450.0, "tau": 0.625}}, {"code": "B252101030", "name": "Х.ЗАЯА", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 600, "stallk": 5, "tr": "TIP120"}, "a": {"Ic": 600.0, "Ib": 600.0, "Ibd": 1200.0, "Rb": 3000.0, "Rbs": 3000, "Ib_act": 1200.0, "beta_act": 500.0, "gain": 500.0, "Pd": 1200.0, "Prb": 4.32, "margin": 8.33, "Pdpct": 1.8, "Istall": 3000, "diode": "1N5408 (3 A)"}}, {"code": "B252180002", "name": "М.МӨНХСАРАН", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 30, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 30.0, "Ib": 272.7, "Ibd": 818.2, "Rb": 5256.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 35.6, "gain": 35.6, "Pd": 7.5, "Prb": 3.63, "margin": 3.33, "Pdpct": 1.5, "Ubz": 11.75}}, {"code": "B252180006", "name": "Ц.БОЛОРТУЯА", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 6, "il": 250, "stallk": 3, "tr": "2N2222"}, "a": {"Ic": 250.0, "Ib": 3333.3, "Ibd": 10000.0, "Rb": 430.0, "Rbs": 430.0, "Ib_act": 10000.0, "beta_act": 25.0, "gain": 25.0, "Pd": 75.0, "Prb": 43.0, "margin": 3.2, "Pdpct": 12.0, "Istall": 750, "diode": "1N4007 (1 A)"}}, {"code": "B252180010", "name": "Г.ГАНСУВД", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "rcoil": 400, "il": 30.0, "tr": "2N2222", "lcoil": 80, "contact": "250 VAC / 10 A"}, "a": {"Ic": 30.0, "Ib": 400.0, "Ibd": 1200.0, "Rb": 3583.0, "Rbs": 3300.0, "Ib_act": 1303.0, "beta_act": 23.0, "gain": 23.0, "Pd": 9.0, "Prb": 5.6, "margin": 26.67, "Pdpct": 1.4, "E": 36.0, "Pcoil": 360.0, "tau": 0.2}}, {"code": "B252180013", "name": "Б.ДЭЛГЭРМӨРӨН", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 10, "tr": "2N2222", "ctype": "Нийтлэг катод (common cathode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 270.0, "std": 270.0, "I": 10.0, "P": 27.0}, "G": {"calc": 150.0, "std": 130.0, "I": 11.5, "P": 17.3}, "B": {"calc": 150.0, "std": 130.0, "I": 11.5, "P": 17.3}}, "Ic": 10.0, "Ib": 133.3, "Ibd": 266.7, "Rb": 16125.0, "Rbs": 16000.0, "Ib_act": 268.8, "beta_act": 37.2, "Itot": 30, "Pd": 3.0, "Ptot": 150}}, {"code": "B252180055", "name": "С.МАГСАРБАТ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "rcoil": 70, "il": 71.4, "tr": "2N2222", "lcoil": 120, "contact": "250 VAC / 10 A"}, "a": {"Ic": 71.4, "Ib": 952.0, "Ibd": 1904.0, "Rb": 2258.0, "Rbs": 2200.0, "Ib_act": 1954.5, "beta_act": 36.5, "gain": 36.5, "Pd": 21.4, "Prb": 8.4, "margin": 11.2, "Pdpct": 3.4, "E": 305.88, "Pcoil": 357.0, "tau": 1.714}}, {"code": "B252180073", "name": "Х.ЖАНБОЛОТ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "rcoil": 120, "il": 41.7, "tr": "2N2222", "lcoil": 120, "contact": "250 VAC / 7 A"}, "a": {"Ic": 41.7, "Ib": 556.0, "Ibd": 1668.0, "Rb": 2578.0, "Rbs": 2400.0, "Ib_act": 1791.7, "beta_act": 23.3, "gain": 23.3, "Pd": 12.5, "Prb": 7.7, "margin": 19.18, "Pdpct": 2.0, "E": 104.33, "Pcoil": 208.5, "tau": 1.0}}, {"code": "B252180084", "name": "А.ГАН-ЭРДЭНЭ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 15, "tr": "2N2222", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 447.0, "std": 430.0, "I": 15.6, "P": 104.4}, "G": {"calc": 367.0, "std": 360.0, "I": 15.3, "P": 84.0}, "B": {"calc": 367.0, "std": 360.0, "I": 15.3, "P": 84.0}}, "Ic": 15.0, "Ib": 200.0, "Ibd": 400.0, "Rb": 10750.0, "Rbs": 10000, "Ib_act": 430.0, "beta_act": 34.9, "Itot": 45, "Pd": 4.5, "Ptot": 405}}, {"code": "B252180085", "name": "Г.ЧОЙЖИЛСҮРЭН", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 15, "tr": "2N2222", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 180.0, "std": 180.0, "I": 15.0, "P": 40.5}, "G": {"calc": 100.0, "std": 91.0, "I": 16.5, "P": 24.7}, "B": {"calc": 100.0, "std": 91.0, "I": 16.5, "P": 24.7}}, "Ic": 15.0, "Ib": 200.0, "Ibd": 400.0, "Rb": 10750.0, "Rbs": 10000, "Ib_act": 430.0, "beta_act": 34.9, "Itot": 45, "Pd": 4.5, "Ptot": 225}}, {"code": "B252180102", "name": "Г.ЭНЭРЭЛ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 20, "tr": "BC547", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 488.0, "std": 470.0, "I": 20.7, "P": 202.3}, "G": {"calc": 428.0, "std": 390.0, "I": 21.9, "P": 187.4}, "B": {"calc": 428.0, "std": 390.0, "I": 21.9, "P": 187.4}}, "Ic": 20.0, "Ib": 181.8, "Ibd": 545.5, "Rb": 7883.0, "Rbs": 7500.0, "Ib_act": 573.3, "beta_act": 34.9, "Itot": 60, "Pd": 5.0, "Ptot": 720}}, {"code": "B252180103", "name": "Б.ЭНХЖАРГАЛ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 20, "tr": "BC547", "ctype": "Нийтлэг катод (common cathode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 488.0, "std": 470.0, "I": 20.7, "P": 202.3}, "G": {"calc": 428.0, "std": 390.0, "I": 21.9, "P": 187.4}, "B": {"calc": 428.0, "std": 390.0, "I": 21.9, "P": 187.4}}, "Ic": 20.0, "Ib": 181.8, "Ibd": 545.5, "Rb": 7883.0, "Rbs": 7500.0, "Ib_act": 573.3, "beta_act": 34.9, "Itot": 60, "Pd": 5.0, "Ptot": 720}}, {"code": "B252180110", "name": "Ч.ДАШНЯМ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "rcoil": 120, "il": 41.7, "tr": "2N2222", "lcoil": 200, "contact": "250 VAC / 10 A"}, "a": {"Ic": 41.7, "Ib": 556.0, "Ibd": 1668.0, "Rb": 2578.0, "Rbs": 2400.0, "Ib_act": 1791.7, "beta_act": 23.3, "gain": 23.3, "Pd": 12.5, "Prb": 7.7, "margin": 19.18, "Pdpct": 2.0, "E": 173.89, "Pcoil": 208.5, "tau": 1.667}}, {"code": "B252180117", "name": "Г.АЗЖАРГАЛ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 6, "il": 180, "stallk": 3, "tr": "2N2222"}, "a": {"Ic": 180.0, "Ib": 2400.0, "Ibd": 7200.0, "Rb": 597.0, "Rbs": 560.0, "Ib_act": 7678.6, "beta_act": 23.4, "gain": 23.4, "Pd": 54.0, "Prb": 33.02, "margin": 4.44, "Pdpct": 8.6, "Istall": 540, "diode": "1N4007 (1 A)"}}, {"code": "B252180120", "name": "Б.РИМИД", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 40, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 40.0, "Ib": 533.3, "Ibd": 1066.7, "Rb": 4031.0, "Rbs": 3900.0, "Ib_act": 1102.6, "beta_act": 36.3, "gain": 36.3, "Pd": 12.0, "Prb": 4.74, "margin": 20.0, "Pdpct": 1.9, "Ubz": 4.7}}, {"code": "B252180126", "name": "Т.ДОРЖСАМБУУ", "school": "ЭХИС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 20, "tr": "2N2222", "ctype": "Нийтлэг катод (common cathode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 485.0, "std": 470.0, "I": 20.6, "P": 200.2}, "G": {"calc": 425.0, "std": 390.0, "I": 21.8, "P": 185.3}, "B": {"calc": 425.0, "std": 390.0, "I": 21.8, "P": 185.3}}, "Ic": 20.0, "Ib": 266.7, "Ibd": 800.0, "Rb": 5375.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 23.7, "Itot": 60, "Pd": 6.0, "Ptot": 720}}, {"code": "B252180134", "name": "Г.МАРГАД-ЭРДЭНЭ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "rcoil": 120, "il": 41.7, "tr": "2N2222", "lcoil": 200, "contact": "30 VDC / 10 A"}, "a": {"Ic": 41.7, "Ib": 556.0, "Ibd": 1112.0, "Rb": 3867.0, "Rbs": 3600.0, "Ib_act": 1194.4, "beta_act": 34.9, "gain": 34.9, "Pd": 12.5, "Prb": 5.14, "margin": 19.18, "Pdpct": 2.0, "E": 173.89, "Pcoil": 208.5, "tau": 1.667}}, {"code": "B252180143", "name": "С.ЖАРХАНБЕК", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 6, "il": 250, "stallk": 5, "tr": "2N2222"}, "a": {"Ic": 250.0, "Ib": 3333.3, "Ibd": 6666.7, "Rb": 645.0, "Rbs": 620.0, "Ib_act": 6935.5, "beta_act": 36.0, "gain": 36.0, "Pd": 75.0, "Prb": 29.82, "margin": 3.2, "Pdpct": 12.0, "Istall": 1250, "diode": "1N5408 (3 A)"}}, {"code": "B252180147", "name": "О.ХАЛИУНАА", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 25, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 25.0, "Ib": 227.3, "Ibd": 681.8, "Rb": 6307.0, "Rbs": 6200.0, "Ib_act": 693.5, "beta_act": 36.0, "gain": 36.0, "Pd": 6.2, "Prb": 2.98, "margin": 4.0, "Pdpct": 1.2, "Ubz": 11.75}}, {"code": "B252190013", "name": "М.УРАНБИЛЭГ", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "rcoil": 270, "il": 44.4, "tr": "2N2222", "lcoil": 200, "contact": "250 VAC / 7 A"}, "a": {"Ic": 44.4, "Ib": 592.0, "Ibd": 1776.0, "Rb": 2421.0, "Rbs": 2400.0, "Ib_act": 1791.7, "beta_act": 24.8, "gain": 24.8, "Pd": 13.3, "Prb": 7.7, "margin": 18.02, "Pdpct": 2.1, "E": 197.14, "Pcoil": 532.8, "tau": 0.741}}, {"code": "B252190018", "name": "Л.АНАР", "school": "ЭХИС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "rcoil": 320, "il": 37.5, "tr": "2N2222", "lcoil": 200, "contact": "250 VAC / 10 A"}, "a": {"Ic": 37.5, "Ib": 500.0, "Ibd": 1500.0, "Rb": 2867.0, "Rbs": 2700.0, "Ib_act": 1592.6, "beta_act": 23.5, "gain": 23.5, "Pd": 11.2, "Prb": 6.85, "margin": 21.33, "Pdpct": 1.8, "E": 140.62, "Pcoil": 450.0, "tau": 0.625}}, {"code": "B252190029", "name": "Г.ДОРЖДАВГА", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 25, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 25.0, "Ib": 227.3, "Ibd": 454.5, "Rb": 9460.0, "Rbs": 9100.0, "Ib_act": 472.5, "beta_act": 52.9, "gain": 52.9, "Pd": 6.2, "Prb": 2.03, "margin": 4.0, "Pdpct": 1.2, "Ubz": 4.75}}, {"code": "B252190061", "name": "Г.ДАРХАНБААТАР", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 600, "stallk": 3, "tr": "TIP120"}, "a": {"Ic": 600.0, "Ib": 600.0, "Ibd": 1200.0, "Rb": 3000.0, "Rbs": 3000, "Ib_act": 1200.0, "beta_act": 500.0, "gain": 500.0, "Pd": 1200.0, "Prb": 4.32, "margin": 8.33, "Pdpct": 1.8, "Istall": 1800, "diode": "1N5408 (3 A)"}}, {"code": "B252190071", "name": "С.БАЛЖИННЯМ", "school": "ЭХИС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "il": 30, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 30.0, "Ib": 400.0, "Ibd": 1200.0, "Rb": 3583.0, "Rbs": 3300.0, "Ib_act": 1303.0, "beta_act": 23.0, "gain": 23.0, "Pd": 9.0, "Prb": 5.6, "margin": 26.67, "Pdpct": 1.4, "Ubz": 4.7}}, {"code": "B252190078", "name": "Ү.ГАНСҮХ", "school": "ЭХИС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 800, "stallk": 4, "tr": "TIP120"}, "a": {"Ic": 800.0, "Ib": 800.0, "Ibd": 2400.0, "Rb": 1500.0, "Rbs": 1500.0, "Ib_act": 2400.0, "beta_act": 333.3, "gain": 333.3, "Pd": 1600.0, "Prb": 8.64, "margin": 6.25, "Pdpct": 2.5, "Istall": 3200, "diode": "1N5408 (3 A)"}}, {"code": "B252760003", "name": "Б.ДАВАА", "school": "ГУУС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 12, "il": 320, "stallk": 5, "tr": "2N2222"}, "a": {"Ic": 320.0, "Ib": 4266.7, "Ibd": 8533.3, "Rb": 504.0, "Rbs": 470.0, "Ib_act": 9148.9, "beta_act": 35.0, "gain": 35.0, "Pd": 96.0, "Prb": 39.34, "margin": 2.5, "Pdpct": 15.4, "Istall": 1600, "diode": "1N5408 (3 A)"}}, {"code": "B252760007", "name": "С.СОДБАЯР", "school": "ГУУС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 6, "il": 450, "stallk": 5, "tr": "TIP120"}, "a": {"Ic": 450.0, "Ib": 450.0, "Ibd": 900.0, "Rb": 4000.0, "Rbs": 3900.0, "Ib_act": 923.1, "beta_act": 487.5, "gain": 487.5, "Pd": 900.0, "Prb": 3.32, "margin": 11.11, "Pdpct": 1.4, "Istall": 2250, "diode": "1N5408 (3 A)"}}, {"code": "B252760009", "name": "Б.БАТЖАРГАЛ", "school": "ГУУС", "elem": "RGB", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 9, "il": 15, "tr": "2N2222", "ctype": "Нийтлэг анод (common anode)", "vf": {"R": 2.0, "G": 3.2, "B": 3.2}}, "a": {"R": {"R": {"calc": 447.0, "std": 430.0, "I": 15.6, "P": 104.4}, "G": {"calc": 367.0, "std": 360.0, "I": 15.3, "P": 84.0}, "B": {"calc": 367.0, "std": 360.0, "I": 15.3, "P": 84.0}}, "Ic": 15.0, "Ib": 200.0, "Ibd": 400.0, "Rb": 10750.0, "Rbs": 10000, "Ib_act": 430.0, "beta_act": 34.9, "Itot": 45, "Pd": 4.5, "Ptot": 405}}, {"code": "B252760010", "name": "Б.ЧУЛУУНЗАГД", "school": "ГУУС", "elem": "REL", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "rcoil": 400, "il": 30.0, "tr": "BC547", "lcoil": 80, "contact": "250 VAC / 7 A"}, "a": {"Ic": 30.0, "Ib": 272.7, "Ibd": 818.2, "Rb": 5256.0, "Rbs": 5100.0, "Ib_act": 843.1, "beta_act": 35.6, "gain": 35.6, "Pd": 7.5, "Prb": 3.63, "margin": 3.33, "Pdpct": 1.5, "E": 36.0, "Pcoil": 360.0, "tau": 0.2}}, {"code": "B252760012", "name": "Б.ТӨГӨЛДӨР", "school": "ГУУС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 2, "vcc": 5, "il": 40, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 40.0, "Ib": 533.3, "Ibd": 1066.7, "Rb": 4031.0, "Rbs": 3900.0, "Ib_act": 1102.6, "beta_act": 36.3, "gain": 36.3, "Pd": 12.0, "Prb": 4.74, "margin": 20.0, "Pdpct": 1.9, "Ubz": 4.7}}, {"code": "B252760013", "name": "Д.БАЯРМАГНАЙ", "school": "ГУУС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 12, "il": 25, "tr": "BC547", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 25.0, "Ib": 227.3, "Ibd": 681.8, "Rb": 6307.0, "Rbs": 6200.0, "Ib_act": 693.5, "beta_act": 36.0, "gain": 36.0, "Pd": 6.2, "Prb": 2.98, "margin": 4.0, "Pdpct": 1.2, "Ubz": 11.75}}, {"code": "B252760016", "name": "Б.БАТ-ОРГИЛ", "school": "ГУУС", "elem": "BUZ", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 5, "il": 35, "tr": "2N2222", "btype": "Актив (дотоод генератортай)"}, "a": {"Ic": 35.0, "Ib": 466.7, "Ibd": 1400.0, "Rb": 3071.0, "Rbs": 3000, "Ib_act": 1433.3, "beta_act": 24.4, "gain": 24.4, "Pd": 10.5, "Prb": 6.16, "margin": 22.86, "Pdpct": 1.7, "Ubz": 4.7}}, {"code": "B252760025", "name": "З.ХАШЧУЛУУН", "school": "ГУУС", "elem": "DCM", "v": {"vgpio": 5.0, "ksat": 3, "vcc": 9, "il": 600, "stallk": 5, "tr": "TIP120"}, "a": {"Ic": 600.0, "Ib": 600.0, "Ibd": 1800.0, "Rb": 2000.0, "Rbs": 2000, "Ib_act": 1800.0, "beta_act": 333.3, "gain": 333.3, "Pd": 1200.0, "Prb": 6.48, "margin": 8.33, "Pdpct": 1.8, "Istall": 3000, "diode": "1N5408 (3 A)"}}];
+
+const TR = {
+ "2N2222":{hfe:75, icmax:800, vcesat:0.3, vbe:0.7, pd:625,  pkg:"TO-18 / TO-92", vceo:40},
+ "BC547" :{hfe:110,icmax:100, vcesat:0.25,vbe:0.7, pd:500,  pkg:"TO-92",         vceo:45},
+ "BD139" :{hfe:40, icmax:1500,vcesat:0.5, vbe:0.9, pd:8000, pkg:"TO-126",        vceo:80},
+ "TIP120":{hfe:1000,icmax:5000,vcesat:2.0,vbe:1.4, pd:65000,pkg:"TO-220 (Darlington)",vceo:60}
+};
+
+const ELEM = {
+ DCM:{name:"Тогтмол хүчдэлийн мотор (DC motor)", short:"DC motor", color:"var(--dcm)"},
+ BUZ:{name:"Дуут дохиолол (Buzzer)",             short:"Buzzer",   color:"var(--buz)"},
+ REL:{name:"Электромагнит реле (Relay)",         short:"Relay",    color:"var(--rel)"},
+ RGB:{name:"Гурван өнгөт LED (RGB LED)",         short:"3 color LED", color:"var(--rgb)"}
+};
+
+/* ===================== SCHEMATICS ===================== */
+function schDCM(v){const t=TR[v.tr];return `
+<svg class="sch" viewBox="0 0 620 380" role="img" aria-label="DC моторын транзистор түлхүүрийн схем">
+  <line class="w" x1="90" y1="46" x2="540" y2="46"/>
+  <text x="90" y="34" font-size="15" font-weight="700">+${v.vcc} V</text>
+  <circle class="w" cx="330" cy="130" r="30"/><text x="330" y="137" font-size="17" text-anchor="middle" font-weight="700">M</text>
+  <line class="w" x1="330" y1="46" x2="330" y2="100"/>
+  <line class="w" x1="330" y1="160" x2="330" y2="205"/>
+  <text x="372" y="118" font-size="12">Мотор</text><text x="372" y="134" font-size="12">${v.vcc} V / ${v.il} mA</text>
+  <line class="w" x1="470" y1="46" x2="470" y2="108"/>
+  <line class="w" x1="452" y1="110" x2="488" y2="110"/>
+  <path class="fl" d="M452 142 L488 142 L470 112 Z"/>
+  <line class="w" x1="470" y1="142" x2="470" y2="205"/>
+  <line class="w" x1="330" y1="205" x2="470" y2="205"/>
+  <text x="496" y="128" font-size="12">D₁</text><text x="496" y="144" font-size="12">flyback</text>
+  <line class="w" x1="300" y1="238" x2="300" y2="292"/>
+  <line class="w" x1="300" y1="250" x2="330" y2="226"/><line class="w" x1="330" y1="226" x2="330" y2="205"/>
+  <line class="w" x1="300" y1="280" x2="330" y2="304"/><line class="w" x1="330" y1="304" x2="330" y2="340"/>
+  <path class="fl" d="M318 288 L330 300 L314 302 Z"/>
+  <line class="w" x1="252" y1="265" x2="300" y2="265"/>
+  <text x="340" y="252" font-size="13" font-weight="600">${v.tr}</text>
+  <text x="340" y="268" font-size="11">NPN · hFE≥${t.hfe}</text>
+  <rect class="w" x="168" y="252" width="56" height="26" rx="3" fill="none"/>
+  <line class="w" x1="116" y1="265" x2="168" y2="265"/><line class="w" x1="224" y1="265" x2="252" y2="265"/>
+  <text x="196" y="244" font-size="12" text-anchor="middle">R_B</text>
+  <circle class="fl" cx="44" cy="265" r="4"/>
+  <text x="26" y="248" font-size="12" font-weight="700">+5 V</text>
+  <line class="w" x1="44" y1="265" x2="74" y2="265"/>
+  <circle class="fl" cx="78" cy="265" r="3"/>
+  <line class="w" x1="78" y1="265" x2="112" y2="243"/>
+  <circle class="fl" cx="116" cy="265" r="3"/>
+  <text x="92" y="292" font-size="12" text-anchor="middle">S₁ — удирдах түлхүүр</text>
+  <line class="w" x1="44" y1="340" x2="430" y2="340"/>
+  <circle class="fl" cx="44" cy="340" r="4"/>
+  <text x="26" y="360" font-size="12" font-weight="700">0 V</text>
+  <line class="w" x1="266" y1="340" x2="266" y2="352"/>
+  <line class="w" x1="248" y1="352" x2="284" y2="352"/><line class="w" x1="254" y1="358" x2="278" y2="358"/><line class="w" x1="261" y1="364" x2="271" y2="364"/>
+  <text x="296" y="366" font-size="12">GND</text>
+  <circle class="fl" cx="330" cy="205" r="3.5"/>
+</svg>`;}
+
+function schBUZ(v){const t=TR[v.tr];return `
+<svg class="sch" viewBox="0 0 620 380" role="img" aria-label="Buzzer-ын транзистор түлхүүрийн схем">
+  <line class="w" x1="90" y1="46" x2="540" y2="46"/>
+  <text x="90" y="34" font-size="15" font-weight="700">+${v.vcc} V</text>
+  <circle class="w" cx="330" cy="130" r="30"/>
+  <path class="w" d="M318 118 L318 142 L334 152 L334 108 Z"/>
+  <path class="w" d="M342 118 Q350 130 342 142"/>
+  <line class="w" x1="330" y1="46" x2="330" y2="100"/>
+  <line class="w" x1="330" y1="160" x2="330" y2="205"/>
+  <text x="372" y="118" font-size="12">BZ₁</text><text x="372" y="134" font-size="12">${v.vcc} V / ${v.il} mA</text>
+  <line class="w" x1="470" y1="46" x2="470" y2="108"/>
+  <line class="w" x1="452" y1="110" x2="488" y2="110"/>
+  <path class="fl" d="M452 142 L488 142 L470 112 Z"/>
+  <line class="w" x1="470" y1="142" x2="470" y2="205"/>
+  <line class="w" x1="330" y1="205" x2="470" y2="205"/>
+  <text x="496" y="128" font-size="12">D₁</text><text x="496" y="144" font-size="12">1N4148</text>
+  <line class="w" x1="300" y1="238" x2="300" y2="292"/>
+  <line class="w" x1="300" y1="250" x2="330" y2="226"/><line class="w" x1="330" y1="226" x2="330" y2="205"/>
+  <line class="w" x1="300" y1="280" x2="330" y2="304"/><line class="w" x1="330" y1="304" x2="330" y2="340"/>
+  <path class="fl" d="M318 288 L330 300 L314 302 Z"/>
+  <line class="w" x1="252" y1="265" x2="300" y2="265"/>
+  <text x="340" y="252" font-size="13" font-weight="600">${v.tr}</text>
+  <text x="340" y="268" font-size="11">NPN · hFE≥${t.hfe}</text>
+  <rect class="w" x="168" y="252" width="56" height="26" rx="3" fill="none"/>
+  <line class="w" x1="116" y1="265" x2="168" y2="265"/><line class="w" x1="224" y1="265" x2="252" y2="265"/>
+  <text x="196" y="244" font-size="12" text-anchor="middle">R_B</text>
+  <circle class="fl" cx="44" cy="265" r="4"/>
+  <text x="26" y="248" font-size="12" font-weight="700">+5 V</text>
+  <line class="w" x1="44" y1="265" x2="74" y2="265"/>
+  <circle class="fl" cx="78" cy="265" r="3"/>
+  <line class="w" x1="78" y1="265" x2="112" y2="243"/>
+  <circle class="fl" cx="116" cy="265" r="3"/>
+  <text x="92" y="292" font-size="12" text-anchor="middle">S₁ — удирдах түлхүүр</text>
+  <line class="w" x1="44" y1="340" x2="430" y2="340"/>
+  <circle class="fl" cx="44" cy="340" r="4"/>
+  <text x="26" y="360" font-size="12" font-weight="700">0 V</text>
+  <line class="w" x1="266" y1="340" x2="266" y2="352"/>
+  <line class="w" x1="248" y1="352" x2="284" y2="352"/><line class="w" x1="254" y1="358" x2="278" y2="358"/><line class="w" x1="261" y1="364" x2="271" y2="364"/>
+  <text x="296" y="366" font-size="12">GND</text>
+</svg>`;}
+
+function schREL(v){const t=TR[v.tr];return `
+<svg class="sch" viewBox="0 0 700 400" role="img" aria-label="Релейн транзистор түлхүүрийн схем">
+  <line class="w" x1="90" y1="50" x2="470" y2="50"/>
+  <text x="90" y="38" font-size="15" font-weight="700">+${v.vcc} V</text>
+
+  <rect class="w" x="306" y="100" width="48" height="66" rx="3"/>
+  <path class="w" d="M314 114 q10 -11 20 0 M314 131 q10 -11 20 0 M314 148 q10 -11 20 0"/>
+  <line class="w" x1="330" y1="50" x2="330" y2="100"/>
+  <line class="w" x1="330" y1="166" x2="330" y2="210"/>
+  <text x="120" y="118" font-size="12" font-weight="600">Релейн ороомог</text>
+  <text x="120" y="136" font-size="12">${v.vcc} V · R = ${v.rcoil} Ω</text>
+  <text x="120" y="154" font-size="12">L ≈ ${v.lcoil} mH · I = ${v.il} mA</text>
+
+  <line class="w" x1="430" y1="50" x2="430" y2="104"/>
+  <line class="w" x1="412" y1="106" x2="448" y2="106"/>
+  <path class="fl" d="M412 138 L448 138 L430 108 Z"/>
+  <line class="w" x1="430" y1="138" x2="430" y2="210"/>
+  <line class="w" x1="330" y1="210" x2="430" y2="210"/>
+  <text x="396" y="166" font-size="12" font-weight="600">D₁</text>
+  <text x="396" y="182" font-size="12">1N4007</text>
+
+  <line class="thin" x1="356" y1="86" x2="416" y2="86"/>
+  <line class="thin" x1="444" y1="86" x2="596" y2="86"/>
+  <text x="528" y="76" font-size="11" text-anchor="middle">механик холбоос</text>
+  <circle class="fl" cx="596" cy="118" r="4"/>
+  <line class="w" x1="596" y1="90" x2="596" y2="118"/>
+  <line class="w" x1="596" y1="118" x2="652" y2="152"/>
+  <circle class="fl" cx="656" cy="156" r="4"/>
+  <circle class="fl" cx="656" cy="104" r="4"/><line class="w" x1="640" y1="104" x2="656" y2="104"/>
+  <text x="668" y="108" font-size="11">NC</text><text x="668" y="160" font-size="11">NO</text>
+  <text x="560" y="196" font-size="12" font-weight="600" text-anchor="middle">Контакт</text>
+  <text x="560" y="212" font-size="12" text-anchor="middle">${v.contact}</text>
+
+  <line class="w" x1="300" y1="244" x2="300" y2="298"/>
+  <line class="w" x1="300" y1="256" x2="330" y2="232"/><line class="w" x1="330" y1="232" x2="330" y2="210"/>
+  <line class="w" x1="300" y1="286" x2="330" y2="310"/><line class="w" x1="330" y1="310" x2="330" y2="348"/>
+  <path class="fl" d="M318 294 L330 306 L314 308 Z"/>
+  <line class="w" x1="252" y1="271" x2="300" y2="271"/>
+  <text x="344" y="258" font-size="13" font-weight="600">${v.tr}</text>
+  <text x="344" y="274" font-size="11">NPN · hFE≥${t.hfe}</text>
+  <rect class="w" x="168" y="258" width="56" height="26" rx="3" fill="none"/>
+  <line class="w" x1="116" y1="271" x2="168" y2="271"/><line class="w" x1="224" y1="271" x2="252" y2="271"/>
+  <text x="196" y="250" font-size="12" text-anchor="middle">R_B</text>
+  <circle class="fl" cx="44" cy="271" r="4"/>
+  <text x="26" y="254" font-size="12" font-weight="700">+5 V</text>
+  <line class="w" x1="44" y1="271" x2="74" y2="271"/>
+  <circle class="fl" cx="78" cy="271" r="3"/>
+  <line class="w" x1="78" y1="271" x2="112" y2="249"/>
+  <circle class="fl" cx="116" cy="271" r="3"/>
+  <text x="92" y="298" font-size="12" text-anchor="middle">S₁ — удирдах түлхүүр</text>
+  <line class="w" x1="44" y1="348" x2="430" y2="348"/>
+  <circle class="fl" cx="44" cy="348" r="4"/>
+  <text x="26" y="368" font-size="12" font-weight="700">0 V</text>
+  <line class="w" x1="250" y1="348" x2="250" y2="360"/>
+  <line class="w" x1="232" y1="360" x2="268" y2="360"/><line class="w" x1="238" y1="366" x2="262" y2="366"/><line class="w" x1="245" y1="372" x2="255" y2="372"/>
+  <text x="280" y="374" font-size="12">GND</text>
+  <circle class="fl" cx="330" cy="210" r="3.5"/>
+</svg>`;}
+
+function schRGB(v){const t=TR[v.tr];
+ const ch=[{x:185,n:"R",c:"#e11d48",lbl:"Улаан"},{x:380,n:"G",c:"#16a34a",lbl:"Ногоон"},{x:575,n:"B",c:"#2563eb",lbl:"Цэнхэр"}];
+ let s=`<svg class="sch" viewBox="0 0 700 424" role="img" aria-label="RGB LED-ийн гурван сувгийн транзистор түлхүүрийн схем">
+  <line class="w" x1="60" y1="42" x2="640" y2="42"/>
+  <text x="60" y="30" font-size="15" font-weight="700">+${v.vcc} V</text>
+  <line class="w" x1="60" y1="356" x2="640" y2="356"/>
+  <line class="w" x1="86" y1="356" x2="86" y2="368"/>
+  <line class="w" x1="68" y1="368" x2="104" y2="368"/><line class="w" x1="74" y1="374" x2="98" y2="374"/><line class="w" x1="81" y1="380" x2="91" y2="380"/>
+  <text x="114" y="374" font-size="12">GND</text>`;
+ ch.forEach(c=>{
+  s+=`
+  <line class="w" x1="${c.x}" y1="42" x2="${c.x}" y2="74"/>
+  <rect class="w" x="${c.x-26}" y="74" width="52" height="24" rx="3"/>
+  <text x="${c.x}" y="68" font-size="12" text-anchor="middle">R_${c.n}</text>
+  <line class="w" x1="${c.x}" y1="98" x2="${c.x}" y2="130"/>
+  <path d="M${c.x-17} 130 L${c.x+17} 130 L${c.x} 158 Z" fill="${c.c}" stroke="none"/>
+  <line class="w" x1="${c.x-17}" y1="160" x2="${c.x+17}" y2="160"/>
+  <line class="w" x1="${c.x+21}" y1="132" x2="${c.x+33}" y2="120"/>
+  <line class="w" x1="${c.x+21}" y1="146" x2="${c.x+33}" y2="134"/>
+  <text x="${c.x+22}" y="172" font-size="11">${c.lbl}</text>
+  <text x="${c.x+22}" y="186" font-size="11">V_F=${v.vf[c.n].toFixed(1)} V</text>
+  <line class="w" x1="${c.x}" y1="160" x2="${c.x}" y2="202"/>
+  <line class="w" x1="${c.x-32}" y1="232" x2="${c.x-32}" y2="284"/>
+  <line class="w" x1="${c.x-32}" y1="244" x2="${c.x}" y2="220"/><line class="w" x1="${c.x}" y1="220" x2="${c.x}" y2="202"/>
+  <line class="w" x1="${c.x-32}" y1="272" x2="${c.x}" y2="296"/><line class="w" x1="${c.x}" y1="296" x2="${c.x}" y2="356"/>
+  <path class="fl" d="M${c.x-13} 280 L${c.x-1} 292 L${c.x-17} 294 Z"/>
+  <text x="${c.x+8}" y="322" font-size="11" font-weight="600">${v.tr}</text>
+  <rect class="w" x="${c.x-116}" y="247" width="44" height="22" rx="3"/>
+  <line class="w" x1="${c.x-72}" y1="258" x2="${c.x-32}" y2="258"/>
+  <line class="w" x1="${c.x-126}" y1="258" x2="${c.x-116}" y2="258"/>
+  <text x="${c.x-94}" y="241" font-size="11" text-anchor="middle">R_B</text>
+  <circle class="fl" cx="${c.x-168}" cy="258" r="4"/>
+  <text x="${c.x-180}" y="242" font-size="10" font-weight="700">+5 V</text>
+  <line class="w" x1="${c.x-168}" y1="258" x2="${c.x-152}" y2="258"/>
+  <circle class="fl" cx="${c.x-148}" cy="258" r="3"/>
+  <line class="w" x1="${c.x-148}" y1="258" x2="${c.x-126}" y2="241"/>
+  <circle class="fl" cx="${c.x-126}" cy="258" r="3"/>
+  <text x="${c.x-147}" y="282" font-size="10">S_${c.n}</text>`;
+ });
+ s+=`<text x="350" y="398" font-size="11" text-anchor="middle">${v.ctype} · ${v.tr} ×3 · I_F = ${v.il} mA/суваг · V_CC = ${v.vcc} V</text>
+ <text x="350" y="414" font-size="11" text-anchor="middle">S_R, S_G, S_B — 0 / +5 V удирдах түлхүүрүүд · нийтлэг 0 V (GND)</text></svg>`;
+ return s;}
+
+const SCH={DCM:schDCM,BUZ:schBUZ,REL:schREL,RGB:schRGB};
+
+/* ===================== CONTENT ===================== */
+function principle(e,v){const t=TR[v.tr];
+ const common=`
+ <h3>Транзисторын түлхүүрийн хоёр тогтвортой байдал</h3>
+ <p>Энэ бие даалтад удирдах дохиог <b>энгийн гар түлхүүр S₁</b> өгнө: түлхүүр онгорхой үед бааз дээр 0 V, хаалттай үед +5 V. Өөрөөр хэлбэл удирдах хэлхээ нь зөвхөн хоёр түвшинтэй — <b>0 V эсвэл +5 V</b>. Биполяр транзисторыг түлхүүр (switch) горимд ажиллуулахад яг энэ хоёр ажлын цэгийг хэрэглэнэ. Шугаман (актив) бүсэд ажиллуулахыг зайлсхийдэг, учир нь транзистор дээр их хэмжээний хүч тараана:</p>
+ <ul>
+  <li><b>Цоожилсон (cut-off) байдал</b> — S₁ онгорхой, удирдах хүчдэл 0 V. I<sub>B</sub> = 0 ⇒ I<sub>C</sub> ≈ 0 (зөвхөн I<sub>CEO</sub>). V<sub>CE</sub> ≈ V<sub>CC</sub> = ${v.vcc} V. Ачаа <b>унтарсан</b>.</li>
+  <li><b>Ханалтын (saturation) байдал</b> — S₁ хаалттай, удирдах хүчдэл +5 V. I<sub>B</sub> ≥ I<sub>C</sub>/h<sub>FE(min)</sub> нөхцөл биелэхэд транзистор бүрэн онгойж V<sub>CE</sub> = V<sub>CE(sat)</sub> ≈ ${t.vcesat} V болно. Ачаа <b>ажиллана</b>.</li>
+ </ul>
+ <p>Транзистор дээрх хүч P = V<sub>CE</sub>·I<sub>C</sub>. Цоожилсон үед I<sub>C</sub>≈0, ханалтын үед V<sub>CE</sub> бага ⇒ хоёр байдалд хоёуланд хүч тараалт бага. Харин актив бүсэд V<sub>CE</sub> ба I<sub>C</sub> хоёулаа их тул транзистор халах.</p>
+ <h3>Яагаад түлхүүрээр ачааг шууд залгаж болохгүй вэ?</h3>
+ <p>Удирдах түлхүүр S₁ нь зөвхөн <b>удирдах дохионы хэлхээнд</b> (5 V, хэдхэн мА) ажиллана. Транзистор нь:</p>
+ <ul>
+  <li><b>Гүйдлийг өсгөнө</b> — бага баазын гүйдлээр (мА-ийн хэдэн хэсэг) ${v.il} mA ачааны гүйдлийг удирдана. Өсгөлтийн коэффициент h<sub>FE</sub> = ${t.hfe}.</li>
+  <li><b>Хоёр хэлхээг салгана</b> — 5 V удирдах хэлхээ ба ${v.vcc} V хүчний хэлхээ нь зөвхөн нийтлэг 0 V (GND)-ээр холбогдоно. Ачааны хүчдэл удирдах талд дамжихгүй.</li>
+  <li><b>Цаашид автоматжуулах боломж</b> — S₁-ийн оронд мэдрэгч, логик схем, таймерын гаралтыг (мөн 0/5 V) шууд залгаж болно. Транзисторын схем нь өөрчлөгдөхгүй.</li>
+ </ul>
+ <h3>Ханалтын коэффициент (k<sub>sat</sub> = ${v.ksat})</h3>
+ <p>Өгөгдлийн хуудасны h<sub>FE</sub> нь температур, үйлдвэрлэлийн тархалт, I<sub>C</sub>-ээс хамаарч өөрчлөгддөг. Тиймээс тооцоолсон баазын гүйдлийг <b>${v.ksat} дахин</b> нэмэгдүүлж «хүчтэй ханалт» (hard saturation) баталгаажуулна: I<sub>B(төсөл)</sub> = k<sub>sat</sub>·I<sub>C</sub>/h<sub>FE(min)</sub>.</p>
+ <h3>Баазын резисторын үүрэг (R<sub>B</sub>)</h3>
+ <p>Бааз-эмиттерийн p-n шилжилт нь диод шиг ажиллана: V<sub>BE</sub> ≈ ${t.vbe} V-ээс хойш гүйдэл эрс өснө. Хэрэв +5 V-ийг бааз руу <b>шууд</b> холбовол гүйдлийг хязгаарлах зүйл үгүй болж p-n шилжилт шатна. R<sub>B</sub> нь илүүдэл хүчдэлийг (5 − ${t.vbe} = ${(v.vgpio-t.vbe).toFixed(1)} V) өөр дээрээ унагаж баазын гүйдлийг хэрэгтэй хэмжээнд тогтооно.</p>`;
+
+ const spec={
+ DCM:()=>`
+ <h3>Моторын онцлог — индуктив ачаа</h3>
+ <p>Тогтмол хүчдэлийн мотор нь ороомог (индуктивлэг) ачаа. Транзистор хаагдах мөчид ороомгийн гүйдэл тэр дор нь тасрах боломжгүй тул u<sub>L</sub> = −L·di/dt хуулиар <b>эсрэг чиглэлийн их далайцтай хүчдэлийн цохилт</b> (back-EMF spike, хэдэн зуун вольт) үүсч транзисторын коллектор-эмиттерийг цоолно.</p>
+ <p>Иймд ачаатай параллель <b>унтраах диод (flyback / freewheeling diode)</b> нь катодоороо +V<sub>CC</sub> тал, анодоороо коллекторын тал холбогдоно. Хэвийн үед диод хаалттай, транзистор хаагдах мөчид диод онгойж ороомгийн гүйдлийг хааж (I = I<sub>0</sub>·e<sup>−Rt/L</sup>) энергийг нь зарна.</p>
+ <h3>Моторын гурван ажлын режим</h3>
+ <ul>
+  <li><b>Асах мөчийн (эхлэх) гүйдэл</b> — ротор хөдлөөгүй тул зөвхөн ороомгийн омын эсэргүүцэл хязгаарлана. I<sub>start</sub> ≈ ${v.stallk}×I<sub>ажил</sub> = <b>${v.il*v.stallk} mA</b>. Транзистор ба диодыг энэ гүйдлээр сонгоно.</li>
+  <li><b>Хэвийн ажлын гүйдэл</b> — ${v.il} mA (back-EMF гүйдлийг хязгаарлана).</li>
+  <li><b>Блоклогдсон (stall) режим</b> — хүчээр тогтоох үед дахин эхлэх гүйдэл хэмжээнд хүрч урт хугацаанд үргэлжилнэ ⇒ хамгийн хүнд нөхцөл.</li>
+ </ul>
+ <h3>Мотор дээр унах бодит хүчдэл</h3>
+ <p>Транзистор ханалтад ороход коллектор-эмиттер дээр V<sub>CE(sat)</sub> = ${t.vcesat} V унах тул мотор нь V<sub>CC</sub>-ээс бага хүчдэл авна: U<sub>мотор</sub> = ${v.vcc} − ${t.vcesat} = <b>${(v.vcc-t.vcesat).toFixed(1)} V</b>. ${t.vcesat>=1 ? "Дарлингтон транзисторын V<sub>CE(sat)</sub> өндөр (≈2 V) тул алдагдал мэдэгдэхүйц — тайландаа үүнийг дурдаж, MOSFET-ээр солих боломжийг дүгнэлтэд тэмдэглэнэ." : "Алдагдал бага тул мотор нэрлэсэн хүчдэлдээ ойр ажиллана."}</p>
+ <h3>Түлхүүр S₁-ийн ажиллагаа</h3>
+ <p>S₁ хаалттай — мотор эргэнэ; S₁ онгорхой — мотор зогсоно. Энэ схем нь зөвхөн <b>асаах/унтраах</b> удирдлагыг хийнэ. Моторын хурдыг өөрчлөх (импульсийн өргөнийг тохируулах) асуудал энэ бие даалтын хүрээнд орохгүй — дүгнэлтэд цаашид хэрхэн хөгжүүлж болохыг товч дурдахад хангалттай.</p>`,
+ BUZ:()=>`
+ <h3>Buzzer-ын төрөл — яагаад актив вэ?</h3>
+ <p>Таны хувилбар: <b>${v.btype}</b>, ${v.vcc} V / ${v.il} mA.</p>
+ <ul>
+  <li><b>Актив buzzer</b> — дотроо генератор (осциллятор) агуулсан. Тогтмол хүчдэл ${v.vcc} V өгөхөд өөрөө тогтмол тембрээр дуугарна. Удирдлага нь зөвхөн <b>асаах/унтраах</b> — энэ бие даалтын 0 / +5 V түлхүүрийн схемд яг тохирно.</li>
+  <li><b>Пассив buzzer</b> — дотроо генераторгүй, ороомог ба мембранаас тогтоно. Дуугаргахын тулд хувьсах давтамжит дохио хэрэгтэй, тогтмол хүчдэл өгөхөд дуугарахгүй. Иймд энэ схемд <b>тохирохгүй</b> — та зөвхөн актив buzzer-ээр тооцоолно.</li>
+ </ul>
+ <h3>Яагаад транзистор хэрэгтэй вэ?</h3>
+ <p>Buzzer-ын гүйдэл ${v.il} mA бөгөөд ажлын хүчдэл нь ${v.vcc} V. Удирдах хэлхээ нь зөвхөн ${v.vgpio} V, хэдхэн мА чадалтай. Транзистор нь жижиг баазын гүйдлээр том коллекторын гүйдлийг удирдах <b>гүйдлийн өсгөлт</b> (h<sub>FE</sub> = ${t.hfe}) хийж, мөн ${v.vcc} V ачааны хэлхээг ${v.vgpio} V удирдах хэлхээнээс <b>салгана</b>. Ингэснээр дараа нь S₁-ийн оронд мэдрэгч (гэрлийн, температурын, хаалганы) шууд залгах боломжтой болно.</p>
+ <h3>Унтраах диод</h3>
+ <p>Актив buzzer-ын дотор мөн ороомог (электромагнит хувиргуур) байдаг тул транзистор хаагдах мөчид эсрэг хүчдэлийн цохилт үүсэх боломжтой. Иймд ачаатай параллель унтраах диод тавих нь <b>заавал биелүүлэх сайн практик</b>: анод нь коллекторын тал, катод нь +V<sub>CC</sub> тал. 1N4148 (t<sub>rr</sub> ≈ 4 ns) нь хурдан түлхүүрлэлтэд тохиромжтой.</p>
+ <h3>Дууны даралт ба хүчдэл</h3>
+ <p>Buzzer-ын дууны даралтын түвшин (SPL, dB) нь ороомгийн хүчдэлээс хамаарна. Транзистор дээр V<sub>CE(sat)</sub> = ${t.vcesat} V унах тул buzzer-т хүрэх хүчдэл ${(v.vcc-t.vcesat).toFixed(2)} V болно — нэрлэсэн хүчдэлээс багасч дууны хүч бага зэрэг буурна. Энэ алдагдлыг тооцоондоо тоогоор харуулна.</p>`,
+ REL:()=>`
+ <h3>Релейн бүтэц ба хоёр хэлхээний салгалт</h3>
+ <p>Реле нь <b>ороомог</b> (удирдах хэлхээ, ${v.vcc} V / ${v.rcoil} Ω) ба <b>механик контакт</b> (ачааны хэлхээ, ${v.contact}) гэсэн хоёр галваник салангид хэсгээс тогтоно. Ороомгоор гүйдэл гүйхэд үүсэх магнит талбар армтурыг татаж контактыг хааж/онгойлгоно. Иймд ${v.vgpio} V-ын жижиг удирдах дохиогоор (S₁ түлхүүр) 220 V/AC ачааг аюулгүй удирдах боломжтой — энэ нь релейн гол ач холбогдол.</p>
+ <h3>Ороомгийн гүйдлийн тооцоо</h3>
+ <p>Ороомог тогтвортой байдалд зөвхөн омын эсэргүүцлээр хязгаарлагдана: I<sub>coil</sub> = V<sub>CC</sub>/R<sub>coil</sub> = ${v.vcc}/${v.rcoil} = <b>${v.il} mA</b>. Энэ бол транзисторын коллектор гүйдэл I<sub>C</sub> юм.</p>
+ <h3>Унтраах диод — хамгийн чухал элемент</h3>
+ <p>Релейн ороомог нь L ≈ ${v.lcoil} mH индуктивлэгтэй. Транзистор хаагдах мөчид ороомогт хуримтлагдсан энерги W = ½·L·I² хаана ч зарагдах боломжгүй бол u = L·di/dt-ээр <b>200…600 V</b> хүрэх цохилт үүсгэж транзисторыг нэг удаад л цоолно. Унтраах диод (1N4007, катод → +V<sub>CC</sub>) нь гүйдэлд хаалттай гүүр (freewheeling path) болж хүчдэлийн цохилтыг ≈ 0.7 V-ээр хязгаарлана.</p>
+ <h3>Контактын онцлог</h3>
+ <ul>
+  <li><b>NO (хэвийн онгорхой)</b> — ороомог цэнэгдэх үед хаагдана. <b>NC (хэвийн хаалттай)</b> — цэнэгдэхэд онгойно.</li>
+  <li><b>Контактын дэгдэлт (bounce)</b> — хаагдах мөчид 1…10 ms хугацаанд хэд хэдэн удаа цохигдоно. Тоолох хэлхээнд дебаунс (програм эсвэл RC) шаардлагатай.</li>
+  <li><b>Индуктив AC ачаанд</b> (мотор, трансформатор) контакт дээр нуман гал (arc) үүсдэг тул RC-snubber эсвэл варистор тавих нь контактын ресурсыг нэмэгдүүлнэ.</li>
+  <li><b>Залгах хугацаа</b> — хэвийн релейд 5…15 ms. Хурдан түлхүүрлэлт шаардвал реле тохиромжгүй, MOSFET/SSR сонгоно.</li>
+ </ul>
+ <h3>Түлхүүр S₁-ийн ажиллагаа</h3>
+ <p>S₁ хаалттай (+5 V) — ороомог цэнэгдэж контакт шилжинэ, NO контакт хаагдана; S₁ онгорхой (0 V) — ороомог салж контакт буцаж ирнэ. Ингэснээр гарт 5 V л байхад 220 V-ын гэрэл, халаагуур зэргийг аюулгүй удирдана.</p>`,
+ RGB:()=>`
+ <h3>RGB LED-ийн бүтэц</h3>
+ <p>Нэг корпуст гурван бие даасан LED чип (R, G, B) байрлуулсан, нэг нь нийтлэг гарал гаргасан байдаг. Таны хувилбар: <b>${v.ctype}</b>.</p>
+ <ul>
+  <li><b>Нийтлэг катод</b> — гурван анод тусдаа, нийтлэг катод GND-д. Суваг тус бүрт NPN түлхүүр <b>анодын тал</b> (high-side) эсвэл ердийн бага талын схемээр хийнэ.</li>
+  <li><b>Нийтлэг анод</b> — нийтлэг анод +V<sub>CC</sub>-д, гурван катод тусдаа. NPN транзистор катод тал дээр (low-side) шууд тохирно — энэ нь хамгийн хялбар шийдэл.</li>
+ </ul>
+ <h3>Яагаад суваг бүрт тусдаа резистор хэрэгтэй вэ?</h3>
+ <p>LED-ийн гүйдэл-хүчдэлийн шинж чанар нь экспоненциал: I = I<sub>S</sub>(e<sup>V/nV<sub>T</sub></sup> − 1). Хүчдэл бага зэрэг (0.1 V) өсөхөд гүйдэл хоёр дахин өсч болно ⇒ LED-ийг <b>хүчдэлээр биш гүйдлээр</b> удирдах ёстой. Резистор нь гүйдэл хязгаарлагчийн үүрэг гүйцэтгэнэ: R = (V<sub>CC</sub> − V<sub>F</sub> − V<sub>CE(sat)</sub>)/I<sub>F</sub>.</p>
+ <p>Гурван өнгөний V<sub>F</sub> өөр: <b>R = ${v.vf.R.toFixed(1)} V</b> (AlGaInP), <b>G = ${v.vf.G.toFixed(1)} V</b>, <b>B = ${v.vf.B.toFixed(1)} V</b> (InGaN). Иймд нэг нийтлэг резистор тавих нь болохгүй — өнгө тус бүрийн гүйдэл (мөн гэрэлтэлт) өөр болж өнгөний балансыг гажуудуулна.</p>
+ <h3>Гурван түлхүүрээр өнгө нийлүүлэх</h3>
+ <p>Суваг тус бүр өөрийн түлхүүртэй: <b>S<sub>R</sub>, S<sub>G</sub>, S<sub>B</sub></b> (тус бүр 0 / +5 V). Гурван түлхүүрийн хослолоор 2³ = 8 байдал, өөрөөр хэлбэл <b>7 өнгө + унтарсан байдал</b> гарна (аддитив өнгөний нийлүүлэлт):</p>
+ <div class="tw"><table><thead><tr><th>S<sub>R</sub></th><th>S<sub>G</sub></th><th>S<sub>B</sub></th><th>Үр дүнгийн өнгө</th><th class="n">Нийт гүйдэл</th></tr></thead><tbody>
+ <tr><td>0</td><td>0</td><td>0</td><td>Унтарсан</td><td class="n">0 mA</td></tr>
+ <tr><td>1</td><td>0</td><td>0</td><td>Улаан</td><td class="n">${v.il} mA</td></tr>
+ <tr><td>0</td><td>1</td><td>0</td><td>Ногоон</td><td class="n">${v.il} mA</td></tr>
+ <tr><td>0</td><td>0</td><td>1</td><td>Цэнхэр</td><td class="n">${v.il} mA</td></tr>
+ <tr><td>1</td><td>1</td><td>0</td><td>Шар</td><td class="n">${v.il*2} mA</td></tr>
+ <tr><td>1</td><td>0</td><td>1</td><td>Ягаан (magenta)</td><td class="n">${v.il*2} mA</td></tr>
+ <tr><td>0</td><td>1</td><td>1</td><td>Цэнхэр-ногоон (cyan)</td><td class="n">${v.il*2} mA</td></tr>
+ <tr><td>1</td><td>1</td><td>1</td><td><b>Цагаан</b></td><td class="n"><b>${v.il*3} mA</b></td></tr>
+ </tbody></table></div>
+ <div class="note">Тэжээлийн эх үүсвэрийг <b>хамгийн хүнд тохиолдлоор</b>, өөрөөр хэлбэл гурван суваг зэрэг асах (цагаан) үеийн ${v.il*3} mA-аар сонгоно. Завсрын өнгөний шилжилт (жишээ нь улбар шар) авахын тулд суваг бүрийн гүйдлийг тасралтгүй өөрчлөх хэрэгтэй — энэ нь импульсийн өргөний удирдлага шаардах тул энэ бие даалтын хүрээнд орохгүй.</div>
+ <h3>Транзисторын үүрэг</h3>
+ <p>Суваг бүр ${v.il} mA, гурав нийлээд ${v.il*3} mA. Нэмэлтээр V<sub>CC</sub> = ${v.vcc} V нь удирдах ${v.vgpio} V-ээс өндөр тул +5 V түлхүүрийг LED-д шууд залгах боломжгүй. Транзистор нь гүйдлийн өсгөлт ба хоёр хэлхээний салгалтыг хоёуланг хийнэ.</p>`
+ };
+ return common + spec[e]();
+}
+
+function givens(e,v){const t=TR[v.tr];
+ let rows=[
+  ["Удирдлага", "Гар түлхүүр S₁ (0 V / +5 V)"+(e==="RGB"?" ×3":"")],
+  ["Удирдах хүчдэл V<sub>удир</sub> (S₁ хаалттай)", v.vgpio+" V"],
+  ["Ачааны тэжээлийн хүчдэл V<sub>CC</sub>", v.vcc+" V"],
+ ];
+ if(e==="REL") rows.push(["Релейн ороомгийн эсэргүүцэл R<sub>coil</sub>", v.rcoil+" Ω"],
+                          ["Релейн ороомгийн индуктивлэг L", v.lcoil+" mH"],
+                          ["Контактын зөвшөөрөгдөх ачаа", v.contact]);
+ else if(e==="RGB") rows.push(["Суваг тус бүрийн ажлын гүйдэл I<sub>F</sub>", v.il+" mA"],
+                          ["LED-ийн холболт", v.ctype],
+                          ["V<sub>F</sub> (R / G / B)", v.vf.R.toFixed(1)+" / "+v.vf.G.toFixed(1)+" / "+v.vf.B.toFixed(1)+" V"]);
+ else rows.push(["Ачааны хэвийн гүйдэл I<sub>ачаа</sub>", v.il+" mA"]);
+ if(e==="DCM") rows.push(["Асах гүйдлийн коэффициент", "×"+v.stallk]);
+ if(e==="BUZ") rows.push(["Buzzer-ын төрөл", v.btype]);
+ rows.push(["Сонгосон транзистор", "<b>"+v.tr+"</b> ("+t.pkg+")"],
+           ["h<sub>FE(min)</sub>", t.hfe],
+           ["V<sub>BE(sat)</sub>", t.vbe+" V"],
+           ["V<sub>CE(sat)</sub>", t.vcesat+" V"],
+           ["I<sub>C(max)</sub> / V<sub>CEO</sub> / P<sub>D(max)</sub>", t.icmax+" mA / "+t.vceo+" V / "+t.pd+" mW"],
+           ["Ханалтын коэффициент k<sub>sat</sub>", v.ksat]);
+ return `<div class="tw"><table><thead><tr><th>Өгөгдөл</th><th>Утга</th></tr></thead><tbody>`+
+  rows.map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]}</td></tr>`).join("")+`</tbody></table></div>`;
+}
+
+function calcSteps(e,v){const t=TR[v.tr]; const B='<span class="blank">?</span>';
+ let s="";
+ if(e==="RGB"){
+  s+=`<h3>1. Суваг тус бүрийн гүйдэл хязгаарлагч резистор</h3>
+  <p>Резистор, LED, транзистор нь цуваа холбогдсон тул Кирхгофын II хуулиар:</p>
+  <div class="f"><span class="lbl">Ерөнхий хэлбэр</span>V<sub>CC</sub> = I<sub>F</sub>·R + V<sub>F</sub> + V<sub>CE(sat)</sub> &nbsp;⟹&nbsp; R = (V<sub>CC</sub> − V<sub>F</sub> − V<sub>CE(sat)</sub>) / I<sub>F</sub></div>`;
+  ["R","G","B"].forEach(c=>{
+   const nm={R:"Улаан",G:"Ногоон",B:"Цэнхэр"}[c];
+   s+=`<div class="f"><span class="lbl">${nm} суваг (V<sub>F</sub>=${v.vf[c].toFixed(1)} V)</span>
+   R<sub>${c}</sub> = (<span class="given">${v.vcc}</span> − <span class="given">${v.vf[c].toFixed(1)}</span> − <span class="given">${t.vcesat}</span>) / <span class="given">${(v.il/1000).toFixed(3)}</span> = ${B} Ω &nbsp;→&nbsp; E24 стандарт: ${B} Ω<br>
+   P<sub>R${c}</sub> = I<sub>F</sub>²·R<sub>${c}</sub> = ${B} mW</div>`;
+  });
+  s+=`<div class="note">Стандарт эгнээнээс <b>тооцоолсон утгаас доогуур</b> хамгийн ойрыг сонгоход гүйдэл бага зэрэг өснө, <b>дээгүүрийг</b> сонгоход багасна. Аль нь ч болно — гэхдээ сонголтоо тайланд үндэслэл болгон бичнэ. Резисторын хүчийг 2 дахин нөөцтэй сонгоно (≥ 2·P).</div>
+  <h3>2. Суваг бүрийн транзисторын коллектор ба баазын гүйдэл</h3>
+  <p class="fine">Гурван суваг ижил тул тооцоог нэг удаа хийгээд гурвуулангийнх нь хувьд хэрэглэнэ.</p>`;
+ } else {
+  s+=`<h3>1. Коллекторын гүйдлийг тодорхойлох</h3>`;
+  if(e==="REL"){
+   s+=`<div class="f"><span class="lbl">Релейн ороомгийн гүйдэл = транзисторын I<sub>C</sub></span>
+   I<sub>C</sub> = V<sub>CC</sub> / R<sub>coil</sub> = <span class="given">${v.vcc}</span> / <span class="given">${v.rcoil}</span> = ${B} A = ${B} mA</div>`;
+  } else {
+   s+=`<div class="f"><span class="lbl">Ачааны гүйдэл нь коллектороор гүйнэ</span>
+   I<sub>C</sub> = I<sub>ачаа</sub> = <span class="given">${v.il}</span> mA = ${B} A</div>`;
+  }
+  if(e==="DCM"){
+   s+=`<div class="f"><span class="lbl">Асах (эхлэх) гүйдэл — транзистор сонголтын шалгуур</span>
+   I<sub>start</sub> = ${v.stallk} · I<sub>C</sub> = ${v.stallk} · <span class="given">${v.il}</span> mA = ${B} mA<br>
+   Шалгалт: I<sub>C(max)</sub> = <span class="given">${t.icmax}</span> mA ${'&gt;'} I<sub>start</sub> ⟹ ${B} (тийм / үгүй)</div>`;
+  }
+  s+=`<h3>2. Шаардлагатай баазын гүйдэл</h3>`;
+ }
+ s+=`<div class="f"><span class="lbl">Ханалтын хамгийн бага баазын гүйдэл</span>
+ I<sub>B(min)</sub> = I<sub>C</sub> / h<sub>FE(min)</sub> = ${B} / <span class="given">${t.hfe}</span> = ${B} µA</div>
+ <div class="f"><span class="lbl">Хүчтэй ханалтыг баталгаажуулах төслийн баазын гүйдэл</span>
+ I<sub>B(төсөл)</sub> = k<sub>sat</sub> · I<sub>B(min)</sub> = <span class="given">${v.ksat}</span> · ${B} = ${B} µA</div>
+ <h3>3. Баазын резисторын эсэргүүцэл</h3>
+ <p>Түлхүүр S₁ хаалттай үед +5 V → R<sub>B</sub> → бааз → эмиттер → 0 V гогцоонд Кирхгофын II хууль:</p>
+ <div class="f"><span class="lbl">V<sub>удир</sub> = I<sub>B</sub>·R<sub>B</sub> + V<sub>BE(sat)</sub></span>
+ R<sub>B</sub> = (V<sub>удир</sub> − V<sub>BE(sat)</sub>) / I<sub>B(төсөл)</sub> = (<span class="given">${v.vgpio}</span> − <span class="given">${t.vbe}</span>) / ${B} = ${B} Ω<br>
+ E24 стандарт эгнээнээс сонгосон утга: R<sub>B</sub> = ${B} Ω</div>
+ <div class="f"><span class="lbl">Стандарт резистортой бодит баазын гүйдэл</span>
+ I<sub>B(бодит)</sub> = (<span class="given">${v.vgpio}</span> − <span class="given">${t.vbe}</span>) / R<sub>B(станд)</sub> = ${B} µA<br>
+ Шалгалт 1 — ханалт биелэх үү? I<sub>B(бодит)</sub> ${'&gt;'} I<sub>B(min)</sub> ⟹ ${B} (тийм / үгүй)<br>
+ Шалгалт 2 — албадсан өсгөлт: β<sub>албадсан</sub> = I<sub>C</sub>/I<sub>B(бодит)</sub> = ${B} ${'&lt;'} h<sub>FE(min)</sub> = <span class="given">${t.hfe}</span> ⟹ ${B}<br>
+ Шалгалт 3 — удирдах хэлхээнээс татагдах гүйдэл I<sub>B(бодит)</sub> = ${B} mA. Ачааны гүйдлээс хэд дахин бага вэ? I<sub>C</sub>/I<sub>B(бодит)</sub> = ${B} дахин</div>
+ <h3>4. Хүч тараалтын тооцоо</h3>
+ <div class="f"><span class="lbl">Транзистор дээрх хүч (ханалтын байдалд)</span>
+ P<sub>Q</sub> = V<sub>CE(sat)</sub> · I<sub>C</sub> = <span class="given">${t.vcesat}</span> · ${B} = ${B} mW<br>
+ Нөөц: P<sub>D(max)</sub> = <span class="given">${t.pd}</span> mW ⟹ хэрэглээ ${B} % &nbsp;(радиатор шаардлагатай эсэх: ${B})</div>
+ <div class="f"><span class="lbl">Баазын резистор дээрх хүч</span>
+ P<sub>RB</sub> = (V<sub>удир</sub> − V<sub>BE</sub>) · I<sub>B(бодит)</sub> = ${B} mW ⟹ 0.25 W резистор хангалттай эсэх: ${B}</div>`;
+
+ if(e==="REL"){
+  s+=`<h3>5. Ороомгийн энерги ба унтраах диодын сонголт</h3>
+  <div class="f"><span class="lbl">Магнит талбарт хуримтлагдсан энерги</span>
+  W = ½ · L · I<sub>C</sub>² = ½ · <span class="given">${(v.lcoil/1000).toFixed(3)}</span> · (${B})² = ${B} µJ</div>
+  <div class="f"><span class="lbl">Диодын шаардлага</span>
+  I<sub>F(диод)</sub> ≥ I<sub>C</sub> = ${B} mA; V<sub>RRM</sub> ≥ 2·V<sub>CC</sub> = ${B} V ⟹ сонгосон диод: ${B}<br>
+  Ороомгийн цэнэг хаягдах хугацааны тогтмол: τ = L/R<sub>coil</sub> = <span class="given">${(v.lcoil/1000).toFixed(3)}</span>/<span class="given">${v.rcoil}</span> = ${B} ms</div>
+  <div class="f"><span class="lbl">Ороомгийн хэрэглэх хүч</span>
+  P<sub>coil</sub> = V<sub>CC</sub> · I<sub>C</sub> = <span class="given">${v.vcc}</span> · ${B} = ${B} mW</div>`;
+ }
+ if(e==="DCM"){
+  s+=`<h3>5. Унтраах диодын сонголт ба мотор дээрх хүчдэл</h3>
+  <div class="f"><span class="lbl">Диодын шаардлага</span>
+  I<sub>F(дундаж)</sub> ≥ I<sub>C</sub> = ${B} mA; I<sub>FSM</sub> ≥ I<sub>start</sub> = ${B} mA; V<sub>RRM</sub> ≥ 2·V<sub>CC</sub> = ${B} V ⟹ сонгосон диод: ${B}</div>
+  <div class="f"><span class="lbl">Мотор дээр унах бодит хүчдэл (S₁ хаалттай үед)</span>
+  U<sub>мотор</sub> = V<sub>CC</sub> − V<sub>CE(sat)</sub> = <span class="given">${v.vcc}</span> − <span class="given">${t.vcesat}</span> = ${B} V<br>
+  Нэрлэсэн хүчдэлээс алдагдах хувь: (V<sub>CE(sat)</sub>/V<sub>CC</sub>)·100 % = ${B} %</div>`;
+ }
+ if(e==="BUZ"){
+  s+=`<h3>5. Buzzer дээрх хүчдэл ба тэжээлийн тооцоо</h3>
+  <div class="f"><span class="lbl">Ачаа дээр унах бодит хүчдэл</span>
+  U<sub>BZ</sub> = V<sub>CC</sub> − V<sub>CE(sat)</sub> = <span class="given">${v.vcc}</span> − <span class="given">${t.vcesat}</span> = ${B} V<br>
+  Нэрлэсэн хүчдэлээс хасагдах хувь: (V<sub>CE(sat)</sub>/V<sub>CC</sub>)·100 % = ${B} %</div>
+  <div class="f"><span class="lbl">Тэжээлийн эх үүсвэрийн шаардлага</span>
+  P<sub>эх</sub> = V<sub>CC</sub> · I<sub>C</sub> = <span class="given">${v.vcc}</span> · ${B} = ${B} mW<br>
+  Нөөцтэй сонголт: I<sub>эх</sub> ≥ 1.5 · I<sub>C</sub> = ${B} mA</div>`;
+ }
+ if(e==="RGB"){
+  s+=`<h3>5. Нийт гүйдэл ба тэжээлийн тооцоо</h3>
+  <div class="f"><span class="lbl">Гурван суваг зэрэг асах (цагаан өнгө) үеийн нийт гүйдэл</span>
+  I<sub>нийт</sub> = 3 · I<sub>F</sub> = 3 · <span class="given">${v.il}</span> = ${B} mA<br>
+  Тэжээлийн эх үүсвэрийн хүч: P = V<sub>CC</sub> · I<sub>нийт</sub> = <span class="given">${v.vcc}</span> · ${B} = ${B} mW<br>
+  Нөөцтэй сонголт: I<sub>эх</sub> ≥ 1.3 · I<sub>нийт</sub> = ${B} mA</div>
+  <div class="f"><span class="lbl">Түлхүүрийн хослол тус бүрийн гүйдэл</span>
+  Нэг түлхүүр хаалттай (улаан / ногоон / цэнхэр): I = ${B} mA<br>
+  Хоёр түлхүүр хаалттай (шар / ягаан / cyan): I = ${B} mA<br>
+  Гурван түлхүүр хаалттай (цагаан): I = ${B} mA ← <b>хамгийн хүнд тохиолдол</b></div>
+  <div class="f"><span class="lbl">Удирдах хэлхээнээс татагдах нийт гүйдэл (гурван суваг зэрэг)</span>
+  I<sub>удир(нийт)</sub> = 3 · I<sub>B(бодит)</sub> = ${B} mA</div>`;
+ }
+ s+=`<div class="note w"><b>Тооцоонд тавигдах шаардлага:</b> нэгжийг (A / mA / µA, Ω / kΩ, W / mW) тодорхой бичиж, бүх дүнг 2–3 орны нарийвчлалтай үлдээнэ. Формул → тоон орлуулалт → хариу → нэгж гэсэн дарааллаар бичих. Зөвхөн хариуг бичсэн тооцоо оноо авахгүй.</div>`;
+ return s;
+}
+
+function bom(e,v){const t=TR[v.tr];
+ let r=[
+  ["1","Транзистор","<b>"+v.tr+"</b> NPN, I<sub>C(max)</sub>="+t.icmax+" mA, h<sub>FE</sub>≥"+t.hfe+", "+t.pkg, e==="RGB"?"3":"1","Түлхүүр элемент"],
+  ["2","Баазын резистор R<sub>B</sub>","Тооцоогоор (E24), 0.25 W, ±5 %", e==="RGB"?"3":"1","Баазын гүйдэл хязгаарлагч"],
+ ];
+ if(e==="DCM"){
+  r.push(["3","Унтраах диод","1N4007 (1 A / 1000 V) эсвэл 1N5408 (3 A)","1","Индуктив цохилтын хамгаалалт"],
+         ["4","DC мотор",v.vcc+" V, ажлын гүйдэл "+v.il+" mA, асах "+(v.il*v.stallk)+" mA","1","Гүйцэтгэх элемент"],
+         ["5","Тэжээлийн эх үүсвэр",v.vcc+" V DC, ≥ "+Math.ceil(v.il*v.stallk*1.2)+" mA","1","Асах гүйдлийг даах нөөцтэй"],
+         ["6","Шүүлтүүрийн конденсатор","100 µF / "+(v.vcc*2>=25?50:25)+" V электролит + 100 nF керамик","1+1","Тэжээлийн долгионы дарангуйлал"],
+         ["7","Хамгаалах конденсатор","100 nF, моторын хоёр клемм дээр","1","RFI/щёткийн шуугиан дарах"]);
+ }
+ if(e==="BUZ"){
+  r.push(["3","Унтраах диод","1N4148 (хурдан, t<sub>rr</sub>≈4 ns)","1","Ороомгийн цохилтын хамгаалалт"],
+         ["4","Buzzer",v.btype+", "+v.vcc+" V / "+v.il+" mA","1","Гүйцэтгэх элемент"],
+         ["5","Тэжээлийн эх үүсвэр",v.vcc+" V DC, ≥ "+Math.ceil(v.il*1.5)+" mA","1",""],
+         ["6","Шүүлтүүрийн конденсатор","100 nF керамик","1","Тэжээлийн дэмжлэг"]);
+ }
+ if(e==="REL"){
+  r.push(["3","Унтраах диод","1N4007 (1 A / 1000 V), катод → +V<sub>CC</sub>","1","Зайлшгүй — ороомгийн цохилт"],
+         ["4","Реле",v.vcc+" V DC ороомог, R="+v.rcoil+" Ω, I="+v.il+" mA, контакт "+v.contact,"1","Гүйцэтгэх элемент"],
+         ["5","Индикатор LED + резистор","3 mm LED, R ≈ "+Math.round((v.vcc-2)/0.005)+" Ω ("+v.vcc+" V-оос)","1+1","Реле залгагдсаныг заана"],
+         ["6","Тэжээлийн эх үүсвэр",v.vcc+" V DC, ≥ "+Math.ceil(v.il*1.5)+" mA","1",""],
+         ["7","RC-snubber (сонголтоор)","100 Ω + 100 nF/400 V, контактад параллель","1","Индуктив AC ачаанд нуман галын хамгаалалт"]);
+ }
+ if(e==="RGB"){
+  r.push(["3","RGB LED","5 mm, "+v.ctype+", I<sub>F</sub>="+v.il+" mA/суваг","1","Гүйцэтгэх элемент"],
+         ["4","Гүйдэл хязгаарлагч R<sub>R</sub>, R<sub>G</sub>, R<sub>B</sub>","Тооцоогоор (E24), 0.25 W — суваг бүрт өөр утга","3","Гүйдлийн тогтворжуулалт"],
+         ["5","Тэжээлийн эх үүсвэр",v.vcc+" V DC, ≥ "+Math.ceil(v.il*3*1.3)+" mA","1","Гурван суваг зэрэг асах нөхцөл"],
+         ["6","Шүүлтүүрийн конденсатор","100 nF керамик","1","Тэжээлийн дэмжлэг"]);
+ }
+ r.push([String(r.length+1),"Удирдах түлхүүр S₁","SPST түлхүүр (тумблер эсвэл товчлуур), 0 / +5 V дохио өгнө",e==="RGB"?"3":"1","Удирдах дохионы эх үүсвэр"],
+        [String(r.length+2),"Удирдах тэжээл","+5 V DC (тогтворжуулсан), нийтлэг 0 V-ээр хүчний эх үүсвэртэй холбогдоно","1","Удирдах хэлхээний тэжээл"],
+        [String(r.length+3),"Монтажийн материал","Breadboard / өрөмдсөн хавтан, залгуур утас, гагнуур","—","Эмхэтгэл"]);
+ return `<div class="tw"><table><thead><tr><th>№</th><th>Элемент</th><th>Параметр / маркинг</th><th class="n">Тоо</th><th>Үүрэг</th></tr></thead><tbody>`+
+  r.map(x=>`<tr><td class="n">${x[0]}</td><td><b>${x[1]}</b></td><td>${x[2]}</td><td class="n">${x[3]}</td><td class="fine">${x[4]}</td></tr>`).join("")+
+  `</tbody></table></div>`;
+}
+
+const RUBRIC=[
+ ["1","Схемийн зураг","Схем нь стандарт тэмдэглэгээтэй, бүрэн (R<sub>B</sub>, унтраах диод, тэжээл, GND), холболтууд зөв; элементийн нэр ба утга тэмдэглэгдсэн.",3],
+ ["2","Ажиллах зарчим","Цоожилсон ба ханалтын байдлыг тоон утгатай тайлбарласан; унтраах диод / гүйдэл хязгаарлагчийн шаардлагыг үндэслэсэн; яагаад +5 V түлхүүрийг ачаанд шууд залгаж болохгүйг тоогоор харуулсан.",2],
+ ["3","Тооцоо","I<sub>C</sub>, I<sub>B(min)</sub>, I<sub>B(төсөл)</sub>, R<sub>B</sub>, стандарт утга, P<sub>Q</sub>, P<sub>RB</sub>, баталгаажуулалтын шалгалтууд бүрэн; формул → орлуулалт → хариу → нэгж дараалал баригдсан.",3],
+ ["4","Эд ангийн жагсаалт","Бүх элемент параметртэй, тоо хэмжээтэй, сонголтын үндэслэлтэй; нөөцийн коэффициент тооцогдсон.",1],
+ ["5","Тайлангийн бүрдэл","Нүүр хуудас, агуулга, бүлгүүдийн дараалал, дүгнэлт, ашигласан эх сурвалж (datasheet-ийн заалт); хэл найруулга, цэвэр байдал.",1]
+];
+function rubricTable(){
+ return `<div class="tw"><table><thead><tr><th>№</th><th>Шалгуур</th><th>Тайлбар</th><th class="n">Оноо</th></tr></thead><tbody>`+
+ RUBRIC.map(r=>`<tr><td class="n">${r[0]}</td><td><b>${r[1]}</b></td><td class="fine">${r[2]}</td><td class="n">${r[3]}</td></tr>`).join("")+
+ `<tr><td></td><td colspan="2"><b>Нийт</b></td><td class="n"><b>10</b></td></tr></tbody></table></div>`;
+}
+
+/* ===================== STUDENT VIEW ===================== */
+function renderStudent(s){
+ const e=s.elem, v=s.v, E=ELEM[e];
+ const h=`
+ <div class="hero">
+   <div class="vcard">
+     <div class="big">${E.short}<small>таны хувилбар</small></div>
+     <div class="txt">
+       <b>${s.name}</b> · ${s.code} · ${s.school}<br>
+       Танд санамсаргүйгээр ноогдсон удирдах элемент: <b>${E.name}</b>.<br>
+       Удирдлага: <b>0 / +5 V гар түлхүүр</b> · Транзистор: <b>${v.tr}</b> · V<sub>CC</sub> = <b>${v.vcc} V</b> · Ачаа: <b>${e==="RGB"?(v.il+" mA × 3 суваг"):(v.il+" mA")}</b>
+       <div class="meta">
+         <span class="chip strong">${COURSE.code} · ${COURSE.name}</span>
+         <span class="chip">${COURSE.pair}</span>
+         <span class="chip">${COURSE.room}</span>
+         <span class="chip">Авах оноо: 10</span>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <section class="card">
+   <h2><span class="num">1</span>Даалгаврын тодорхойлолт</h2>
+   <p><b>Нийтлэг сэдэв:</b> биполяр транзисторыг түлхүүрийн (switch) горимд ажиллуулж, <b>0 / +5 V удирдах дохиогоор</b> хүчний ачааг удирдах схемийг зохиож, тооцоолж, баримтжуулах.</p>
+   <p><b>Таны хувийн ачаа:</b> <b style="color:${E.color}">${E.name}</b>. Доорх өгөгдөл зөвхөн танд ноогдсон хувилбар бөгөөд өөр оюутны өгөгдлөөс өөр байна.</p>
+   <h3>Гүйцэтгэх ажлууд</h3>
+   <ol>
+     <li><b>Схем</b> — ${E.short}-ийг ${v.tr} транзистороор, <b>0 / +5 V гар түлхүүрээр</b> удирдах зарчмын схемийг стандарт тэмдэглэгээтэй зурах (гараар эсвэл KiCad / Proteus / Multisim / EasyEDA).</li>
+     <li><b>Ажиллах зарчим</b> — схемийн элемент бүрийн үүрэг, транзисторын хоёр байдал, ачааны онцлогийг тайлбарлах.</li>
+     <li><b>Тооцоо</b> — 4-р хэсэгт заасан өгөгдлөөр бүх параметрийг тооцоолж баталгаажуулах.</li>
+     <li><b>Эд ангийн жагсаалт (BOM)</b> — элемент бүрийн маркинг, параметр, тоо хэмжээ, сонголтын үндэслэл.</li>
+     <li><b>Дүгнэлт</b> — схемийн ажиллагаа, хязгаарлалт, сайжруулах боломж (MOSFET-ээр солих, оптроноор салгах, S₁-ийн оронд мэдрэгч залгах г.м.).</li>
+   </ol>
+   <div class="note">Тайланг A4 хэмжээтэй PDF болгон өөрийн оюутны кодоор нэрлэж (жишээ: <code>${s.code}_BD1.pdf</code>) хүлээлгэн өгнө. Схемийн зургийн чанар уншигдахуйц байх шаардлагатай.</div>
+ </section>
+
+ <section class="card">
+   <h2><span class="num">2</span>Зарчмын схем</h2>
+   <div class="schbox">${SCH[e](v)}</div>
+   <h3>Схемийн элементүүдийн үүрэг</h3>
+   <div class="tw"><table><thead><tr><th>Элемент</th><th>Үүрэг</th></tr></thead><tbody>
+     <tr><td><b>S₁ — удирдах түлхүүр${e==="RGB"?" (S<sub>R</sub>, S<sub>G</sub>, S<sub>B</sub>)":""}</b></td><td>Удирдах дохио үүсгэнэ: <b>онгорхой — 0 V</b> (ачаа унтарсан), <b>хаалттай — +5 V</b> (ачаа ажиллана). Зөвхөн удирдах хэлхээнд, бага гүйдэл дамжуулна.${e==="RGB"?" Гурван түлхүүр тус тусдаа ажиллана.":""}</td></tr>
+     <tr><td><b>+5 V / 0 V удирдах тэжээл</b></td><td>Удирдах дохионы эх үүсвэр. 0 V талаараа хүчний эх үүсвэртэй <b>нийтлэг</b> холбогдоно.</td></tr>
+     <tr><td><b>R<sub>B</sub></b></td><td>Баазын гүйдлийг хязгаарлаж ханалтын режимийг тогтворжуулна. 5 V-ийн илүүдэл хэсгийг (5 − V<sub>BE</sub>) өөр дээрээ унагаж бааз-эмиттерийн p-n шилжилтийг хамгаална.</td></tr>
+     <tr><td><b>${v.tr}</b></td><td>Гүйдэл өсгөгч түлхүүр (h<sub>FE</sub> ≥ ${TR[v.tr].hfe}). Бага баазын гүйдлээр ${e==="RGB"?(v.il+" mA суваг тус бүрийн"):(v.il+" mA ачааны")} гүйдлийг удирдана. Мөн ${v.vgpio} V удирдах хэлхээг ${v.vcc} V хүчний хэлхээнээс салгана.</td></tr>
+     ${e==="RGB"
+       ? `<tr><td><b>R<sub>R</sub>, R<sub>G</sub>, R<sub>B</sub></b></td><td>Суваг тус бүрийн гүйдлийг хязгаарлана. V<sub>F</sub> өөр тул утга нь гурав өөр байна.</td></tr>
+          <tr><td><b>RGB LED</b></td><td>Нэг корпуст гурван бие даасан чип. Түлхүүрүүдийн хослолоор 7 өнгө гаргана.</td></tr>`
+       : `<tr><td><b>D₁ (унтраах диод)</b></td><td>Транзистор хаагдах мөчид ачааны ороомогт үүсэх эсрэг хүчдэлийн цохилтыг ≈0.7 V-ээр хязгаарлаж транзисторыг цоолохоос хамгаална. Катод → +V<sub>CC</sub>.</td></tr>
+          <tr><td><b>Ачаа (${E.short})</b></td><td>${v.vcc} V / ${v.il} mA. Коллектор ба +V<sub>CC</sub> хооронд холбогдсон (low-side switching).</td></tr>`}
+     <tr><td><b>GND (0 V)</b></td><td>Удирдах ба хүчний хоёр хэлхээний <b>нийтлэг</b> нэг цэг. Нийтлэг 0 V байхгүй бол баазын гүйдэл гүйх зам үүсэхгүй тул схем ажиллахгүй.</td></tr>
+   </tbody></table></div>
+ </section>
+
+ <section class="card">
+   <h2><span class="num">3</span>Ажиллах зарчим</h2>
+   ${principle(e,v)}
+ </section>
+
+ <section class="card">
+   <h2><span class="num">4</span>Таны тооцооны өгөгдөл</h2>
+   <div class="note">Доорх өгөгдөл <b>зөвхөн ${s.code} кодтой оюутанд</b> ноогдсон. Өөр хувилбарын өгөгдлөөр тооцсон тайлан оноо авахгүй.</div>
+   ${givens(e,v)}
+ </section>
+
+ <section class="card">
+   <h2><span class="num">5</span>Тооцооны дараалал</h2>
+   <p class="fine">Зураастай хэсгүүдийг өөрөө тооцоолж тайландаа бүрэн гүйцэтгэлээр бичнэ. <span class="given">Ногоон</span> тоонууд нь танд өгөгдсөн утга.</p>
+   ${calcSteps(e,v)}
+ </section>
+
+ <section class="card">
+   <h2><span class="num">6</span>Эд ангийн жагсаалт (BOM)</h2>
+   <p class="fine">Доорх жагсаалт нь үндсэн бүтэц. Тайландаа тооцооны хариугаар резисторын утгыг нөхөж, үнийн дүн (МNT) ба нийлүүлэгчийн багана нэмнэ.</p>
+   ${bom(e,v)}
+ </section>
+
+ <section class="card">
+   <h2><span class="num">7</span>Тайлангийн бүтэц</h2>
+   <ol>
+     <li><b>Нүүр хуудас</b> — хичээлийн код ба нэр, бие даалтын дугаар, сэдэв, ноогдсон элемент, оюутны код ба нэр, багшийн нэр, он сар.</li>
+     <li><b>Даалгаврын тодорхойлолт</b> — өгөгдсөн өгөгдлийн хүснэгт (4-р хэсгээс).</li>
+     <li><b>Теорийн хэсэг</b> — транзисторын түлхүүрийн режим, ачааны онцлог.</li>
+     <li><b>Зарчмын схем</b> — тэмдэглэгээтэй, элементийн утгыг зааж.</li>
+     <li><b>Тооцооны хэсэг</b> — 5-р хэсгийн бүх томьёо, орлуулалт, хариу, нэгж, баталгаажуулалтын шалгалтууд.</li>
+     <li><b>Эд ангийн жагсаалт</b> — бүрэн, параметртэй.</li>
+     <li><b>Дүгнэлт</b> — схемийн ажиллагаа, хязгаарлалт, сайжруулах санал.</li>
+     <li><b>Ашигласан материал</b> — transistor/diode-ийн datasheet, лекцийн материал (эх сурвалжийг зөв хэлбэрээр).</li>
+   </ol>
+ </section>
+
+ <section class="card">
+   <h2><span class="num">8</span>Үнэлгээний шалгуур (10 оноо)</h2>
+   ${rubricTable()}
+   <div class="note w"><b>Оноо хасагдах нөхцөл:</b> унтраах диод / гүйдэл хязгаарлагч резистор байхгүй схем (−2); нэгж бичигдээгүй тооцоо (−1); өөр оюутны өгөгдлөөр тооцсон (тооцооны оноо 0); хуулбарласан тайлан (0 оноо).</div>
+ </section>`;
+ return h;
+}
+
+/* ===================== TEACHER VIEW ===================== */
+function renderTeacher(){
+ const cnt={DCM:0,BUZ:0,REL:0,RGB:0};
+ STUDENTS.forEach(s=>cnt[s.elem]++);
+ const schools={};
+ STUDENTS.forEach(s=>schools[s.school]=(schools[s.school]||0)+1);
+ let h=`
+ <section class="card">
+   <h2><span class="num">1</span>Статистик</h2>
+   <div class="stat">
+     <div class="s"><span class="big">${STUDENTS.length}</span><span class="lb">Нийт оюутан</span></div>
+     <div class="s"><span class="big" style="color:#2980b9">${cnt.DCM}</span><span class="lb">DC motor</span></div>
+     <div class="s"><span class="big" style="color:#d35400">${cnt.BUZ}</span><span class="lb">Buzzer</span></div>
+     <div class="s"><span class="big" style="color:#1e8449">${cnt.REL}</span><span class="lb">Relay</span></div>
+     <div class="s"><span class="big" style="color:#8e44ad">${cnt.RGB}</span><span class="lb">RGB LED</span></div>
+   </div>
+   <p class="fine">Сургуулиар: ${Object.entries(schools).map(([k,n])=>k+" — "+n).join(" · ")}. Хуваарилалт нь тогтмол seed-тэй санамсаргүй алгоритмаар тэнцвэржүүлсэн тул хуудсыг дахин нээхэд өөрчлөгдөхгүй.</p>
+ </section>
+
+ <section class="card">
+   <h2><span class="num">2</span>Оюутны хуваарилалт</h2>
+   <div class="tools noprint">
+     <input type="text" id="q" placeholder="Нэр эсвэл кодоор хайх…">
+     <select id="fe">
+       <option value="">Бүх элемент</option>
+       <option value="DCM">DC motor</option><option value="BUZ">Buzzer</option>
+       <option value="REL">Relay</option><option value="RGB">3 color LED</option>
+     </select>
+     <select id="fs"><option value="">Бүх сургууль</option>${Object.keys(schools).map(k=>`<option value="${k}">${k}</option>`).join("")}</select>
+     <button class="btn sm" id="csvBtn">⤓ CSV татах</button>
+     <button class="btn sec sm" id="keyBtn">Хариуны түлхүүр харуулах</button>
+     <span class="fine" id="cntLbl"></span>
+   </div>
+   <div class="tw"><table id="tt">
+     <thead><tr><th class="n">№</th><th>Код</th><th>Овог нэр</th><th>Сургууль</th><th>Элемент</th><th>Транзистор</th><th>V<sub>CC</sub></th><th>k<sub>sat</sub></th><th>Ачаа</th><th class="keyc hidden">Хариуны түлхүүр</th></tr></thead>
+     <tbody></tbody>
+   </table></div>
+ </section>
+
+ <section class="card">
+   <h2><span class="num">3</span>Үнэлгээний хуудас (хэвлэх)</h2>
+   <p class="fine">10 онооны шалгуур. Хуудсыг хэвлэхэд оюутан тус бүрийн онооны хүснэгт хамт гарна.</p>
+   ${rubricTable()}
+   <div class="tw"><table>
+     <thead><tr><th class="n">№</th><th>Код</th><th>Овог нэр</th><th>Элемент</th><th class="n">1<br><span class="fine">3</span></th><th class="n">2<br><span class="fine">2</span></th><th class="n">3<br><span class="fine">3</span></th><th class="n">4<br><span class="fine">1</span></th><th class="n">5<br><span class="fine">1</span></th><th class="n">Нийт<br><span class="fine">10</span></th><th>Тэмдэглэл</th></tr></thead>
+     <tbody>${STUDENTS.map((s,i)=>`<tr><td class="n">${i+1}</td><td class="n">${s.code}</td><td>${s.name}</td><td><span class="tag ${s.elem}">${ELEM[s.elem].short}</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}</tbody>
+   </table></div>
+ </section>`;
+ return h;
+}
+
+function loadDesc(s){const v=s.v,e=s.elem;
+ if(e==="REL") return v.rcoil+" Ω / "+v.il+" mA";
+ if(e==="RGB") return v.il+" mA × 3 суваг";
+ if(e==="DCM") return v.il+" mA (асах "+(v.il*v.stallk)+" mA)";
+ return v.il+" mA";
+}
+function keyText(s){const a=s.a,e=s.elem;
+ if(e==="RGB"){
+  return `R_R=${a.R.R.calc} Ω→${a.R.R.std} Ω (I=${a.R.R.I} mA) · R_G=${a.R.G.calc} Ω→${a.R.G.std} Ω (I=${a.R.G.I} mA) · R_B=${a.R.B.calc} Ω→${a.R.B.std} Ω (I=${a.R.B.I} mA) | I_C=${a.Ic} mA · I_B(min)=${a.Ib} µA · I_B(төсөл)=${a.Ibd} µA · R_B=${a.Rb} Ω→${a.Rbs} Ω · I_B(бодит)=${a.Ib_act} µA · β=${a.beta_act} · P_Q=${a.Pd} mW · I_нийт=${a.Itot} mA · P_нийт=${a.Ptot} mW`;
+ }
+ let t=`I_C=${a.Ic} mA · I_B(min)=${a.Ib} µA · I_B(төсөл)=${a.Ibd} µA · R_B=${a.Rb} Ω→${a.Rbs} Ω · I_B(бодит)=${a.Ib_act} µA · β=${a.beta_act} · P_Q=${a.Pd} mW (${a.Pdpct} %) · P_RB=${a.Prb} mW · I_Cmax нөөц=×${a.margin}`;
+ if(e==="DCM") t+=` · I_start=${a.Istall} mA · диод: ${a.diode}`;
+ if(e==="REL") t+=` · W=${a.E} µJ · P_coil=${a.Pcoil} mW · τ=${a.tau} ms`;
+ if(e==="BUZ") t+=` · U_BZ=${a.Ubz} V`;
+ return t;
+}
+
+function fillTable(){
+ const q=(document.getElementById("q").value||"").trim().toUpperCase();
+ const fe=document.getElementById("fe").value, fs=document.getElementById("fs").value;
+ const tb=document.querySelector("#tt tbody"); let n=0,rows="";
+ STUDENTS.forEach(s=>{
+  if(fe&&s.elem!==fe) return;
+  if(fs&&s.school!==fs) return;
+  if(q&&s.code.toUpperCase().indexOf(q)<0&&s.name.toUpperCase().indexOf(q)<0) return;
+  n++;
+  rows+=`<tr><td class="n">${n}</td><td class="n">${s.code}</td><td>${s.name}</td><td>${s.school}</td>
+   <td><span class="tag ${s.elem}">${ELEM[s.elem].short}</span></td>
+   <td class="n">${s.v.tr}</td><td class="n">${s.v.vcc} V</td><td class="n">×${s.v.ksat}</td>
+   <td class="n">${loadDesc(s)}</td>
+   <td class="keyc hidden fine mono">${keyText(s)}</td></tr>`;
+ });
+ tb.innerHTML=rows;
+ document.getElementById("cntLbl").textContent=n+" / "+STUDENTS.length+" оюутан";
+ if(window.__keyOn) document.querySelectorAll(".keyc").forEach(x=>x.classList.remove("hidden"));
+}
+
+function downloadCSV(){
+ const head=["Д/д","Оюутны код","Овог нэр","Сургууль","Элемент","Элементийн нэр","Транзистор","Vcc_V","Vудир_V","k_sat","Ачааны гүйдэл","Нэмэлт өгөгдөл","Хариуны түлхүүр","Оноо_10"];
+ const lines=[head.join(",")];
+ STUDENTS.forEach((s,i)=>{
+  const v=s.v;
+  let extra=[];
+  if(s.elem==="REL") extra=["Rcoil="+v.rcoil+"Ohm","L="+v.lcoil+"mH","contact="+v.contact];
+  if(s.elem==="DCM") extra=["stall x"+v.stallk];
+  if(s.elem==="BUZ") extra=[v.btype];
+  if(s.elem==="RGB") extra=[v.ctype,"Vf=2.0/3.2/3.2V"];
+  const row=[i+1,s.code,s.name,s.school,s.elem,ELEM[s.elem].short,v.tr,v.vcc,v.vgpio,v.ksat,
+             loadDesc(s).replace(/,/g,";"),extra.join("; "),keyText(s).replace(/,/g,";"),""];
+  lines.push(row.map(x=>{x=String(x);return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x;}).join(","));
+ });
+ const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="S.ECM201_4-3_BieDaalt1_huvaarilalt.csv";
+ document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ===================== AUTH / BOOT ===================== */
+let ROLE="s", T0=0, TICK=null, SECS=[], ACTIVE=0;
+
+function showErr(m){document.getElementById("lerr").textContent=m;}
+function hideErr(){document.getElementById("lerr").textContent="";}
+
+document.querySelectorAll(".login-tabs button").forEach(b=>{
+ b.addEventListener("click",()=>{
+  document.querySelectorAll(".login-tabs button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); ROLE=b.dataset.role; hideErr();
+  const uid=document.getElementById("uid"), upw=document.getElementById("upw");
+  uid.value=""; upw.value="";
+  if(ROLE==="t"){
+   uid.placeholder="Багшийн ID (ID5) эсвэл и-мэйл";
+   upw.placeholder="Нууц үг";
+   document.getElementById("lhint").innerHTML="Багшийн хэсэгт оюутан бүрийн хуваарилалт, хариуны түлхүүр, CSV татах, үнэлгээний хуудас байна.";
+  } else {
+   uid.placeholder="Оюутны код (B үсэггүй, ж: 252100006)";
+   upw.placeholder="PIN — кодын сүүлийн 4 орон";
+   document.getElementById("lhint").innerHTML="Кодоо B үсгийг хасаж зөвхөн тоогоор оруулж болно.<br>PIN нь кодын сүүлийн 4 орон. Жишээ: <b>252100006</b> → PIN <b>0006</b>";
+  }
+  uid.focus();
+ });
+});
+
+function norm(x){return (x||"").trim().toUpperCase().replace(/\s+/g,"");}
+function findStudent(id){
+ const n=norm(id);
+ const digits=n.replace(/^B/,"");
+ return STUDENTS.find(s=>{const c=s.code.toUpperCase(); return c===n || c.replace(/^B/,"")===digits;});
+}
+
+function enter(){
+ hideErr();
+ const id=norm(document.getElementById("uid").value);
+ const pw=(document.getElementById("upw").value||"").trim();
+ if(!id||!pw){showErr("Код болон PIN-ээ бүрэн оруулна уу.");return;}
+
+ if(ROLE==="t" || TEACHER.ids.indexOf(id)>=0){
+   if(TEACHER.ids.indexOf(id)<0){showErr("Багшийн ID буруу байна.");return;}
+   if(pw!==TEACHER.pin){showErr("Нууц үг буруу байна.");return;}
+   openApp({kind:"t"}); return;
+ }
+ const s=findStudent(id);
+ if(!s){showErr("Ийм код ("+id+") 4-3-р парын нэрсийн санд байхгүй. Кодоо шалгана уу.");return;}
+ if(pw!==s.code.slice(-4)){showErr("PIN буруу. PIN нь кодын сүүлийн 4 орон (жишээ: "+s.code+" → ••••"+s.code.slice(-4)+" гэсэн сүүлийн 4 орон).");return;}
+ openApp({kind:"s",s:s});
+}
+
+/* ---- tabs ---- */
+function selectTab(i){
+ ACTIVE=i;
+ const nav=document.getElementById("nav");
+ if(i<0){ SECS.forEach(x=>x.classList.remove("hidden")); }
+ else { SECS.forEach((x,j)=>x.classList.toggle("hidden", j!==i)); }
+ [...nav.children].forEach((c,j)=>c.classList.toggle("active", j===(i<0?nav.children.length-1:i)));
+ window.scrollTo(0,0);
+}
+function buildTabs(root,short){
+ SECS=[...root.querySelectorAll("section.card")];
+ const nav=document.getElementById("nav"); nav.innerHTML="";
+ SECS.forEach((sec,i)=>{
+  const h=sec.querySelector("h2");
+  let label=h?h.textContent.replace(/^[0-9◆]+\s*/,"").trim():("Хэсэг "+(i+1));
+  if(short && short[i]) label=short[i];
+  const b=document.createElement("button");
+  b.textContent=(i+1)+". "+label;
+  if(short && short.bd && short.bd.indexOf(i)>=0) b.className="bd";
+  b.addEventListener("click",()=>selectTab(i));
+  nav.appendChild(b);
+ });
+ const all=document.createElement("button");
+ all.textContent="☰ Бүгд"; all.className="bd";
+ all.addEventListener("click",()=>selectTab(-1));
+ nav.appendChild(all);
+ selectTab(0);
+}
+
+const S_TABS=Object.assign(
+ ["Даалгавар","Схем","Ажиллах зарчим","Өгөгдөл","Тооцоо","Эд анги","Тайлан","📝 Үнэлгээ"],
+ {bd:[7]});
+const T_TABS=Object.assign(["Статистик","Хуваарилалт","📝 Үнэлгээний хуудас"],{bd:[2]});
+
+/* ---- clock ---- */
+function startClock(){
+ T0=Date.now();
+ if(TICK) clearInterval(TICK);
+ TICK=setInterval(()=>{
+  const d=Math.floor((Date.now()-T0)/1000);
+  const p=n=>String(n).padStart(2,"0");
+  document.getElementById("clock").textContent=p(Math.floor(d/3600))+":"+p(Math.floor(d/60)%60)+":"+p(d%60);
+ },1000);
+}
+
+function openApp(ses){
+ document.getElementById("login").classList.add("hidden");
+ document.getElementById("app").classList.remove("hidden");
+ const sv=document.getElementById("studentView"), tv=document.getElementById("teacherView");
+ if(ses.kind==="t"){
+   document.getElementById("ubLeft").innerHTML="<b>"+TEACHER.name+"</b> — "+TEACHER.title+" · "+COURSE.pair+" · "+STUDENTS.length+" оюутан";
+   sv.innerHTML=""; tv.innerHTML=renderTeacher();
+   document.getElementById("q").addEventListener("input",fillTable);
+   document.getElementById("fe").addEventListener("change",fillTable);
+   document.getElementById("fs").addEventListener("change",fillTable);
+   document.getElementById("csvBtn").addEventListener("click",downloadCSV);
+   document.getElementById("keyBtn").addEventListener("click",function(){
+     window.__keyOn=!window.__keyOn;
+     document.querySelectorAll(".keyc").forEach(x=>x.classList.toggle("hidden",!window.__keyOn));
+     this.textContent=window.__keyOn?"Хариуны түлхүүр нуух":"Хариуны түлхүүр харуулах";
+   });
+   fillTable();
+   buildTabs(tv,T_TABS);
+ } else {
+   const s=ses.s;
+   document.getElementById("ubLeft").innerHTML="<b>"+s.name+"</b> · "+s.code+" · "+s.school+" · <b>"+ELEM[s.elem].short+"</b>";
+   tv.innerHTML=""; sv.innerHTML=renderStudent(s);
+   buildTabs(sv,S_TABS);
+ }
+ startClock();
+}
+
+document.getElementById("lbtn").addEventListener("click",enter);
+["uid","upw"].forEach(id=>document.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")enter();}));
+document.getElementById("printBtn").addEventListener("click",()=>window.print());
+document.getElementById("outBtn").addEventListener("click",()=>{
+ if(TICK){clearInterval(TICK);TICK=null;}
+ document.getElementById("clock").textContent="00:00:00";
+ document.getElementById("app").classList.add("hidden");
+ document.getElementById("login").classList.remove("hidden");
+ document.getElementById("upw").value="";
+ document.getElementById("studentView").innerHTML="";
+ document.getElementById("teacherView").innerHTML="";
+ document.getElementById("nav").innerHTML="";
+ SECS=[]; window.__keyOn=false;
+});
+
+</script>
+</body>
+</html>
